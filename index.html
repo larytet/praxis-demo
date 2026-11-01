@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+<title>Praxis Check-in Demo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Hebrew:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Concept: Empfang | Arztansicht mit Hinweis-Kacheln | Datenschutz. Auf grossen Bildschirmen drei Spalten, alle Groessen in rem und skalieren mit der Breite.
+   Farbe: kuehles Papierweiss, Tinte, Petrol-Akzent; Ampelfarben nur fuer Zustand; Rosa nur fuer den Blick. */
+:root{--bg:#F1F4F6;--card:#FFFFFF;--ink:#14212B;--muted:#5A6B78;--line:#D8E0E6;--accent:#0B6E8A;--accent-soft:#E2F0F4;--ok:#1B7F54;--ok-soft:#E1F2EA;--warn:#9A6200;--warn-soft:#FBEFD6;--stage:#E9EEF1;--gz:#D6336C;
+--ui:'IBM Plex Sans','IBM Plex Sans Hebrew',system-ui,-apple-system,'Segoe UI',sans-serif;--mono:'IBM Plex Mono','IBM Plex Sans Hebrew',ui-monospace,Menlo,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0C1318;--card:#131C23;--ink:#E7EEF3;--muted:#93A5B2;--line:#25333D;--accent:#5CC0DC;--accent-soft:#12303A;--ok:#4CC38A;--ok-soft:#10301F;--warn:#E3B04B;--warn-soft:#352A10;--stage:#0F181E;--gz:#FF7AA8;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0C1318;--card:#131C23;--ink:#E7EEF3;--muted:#93A5B2;--line:#25333D;--accent:#5CC0DC;--accent-soft:#12303A;--ok:#4CC38A;--ok-soft:#10301F;--warn:#E3B04B;--warn-soft:#352A10;--stage:#0F181E;--gz:#FF7AA8;color-scheme:dark}
+*{box-sizing:border-box}
+html{font-size:clamp(15px,calc(10px + .45vw),26px)}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:1rem;line-height:1.5;padding-block:1.2rem 2.5rem;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:none;margin:0 auto}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap;margin-bottom:1rem}
+header.top h1{margin:0;font-size:1.35rem;font-weight:600;letter-spacing:-.005em}
+header.top p{margin:.1rem 0 0;color:var(--muted);font-size:.85rem}
+.hdr-r{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap}
+.demo{font:500 .75rem var(--mono);border:1px solid var(--warn);color:var(--warn);background:var(--warn-soft);border-radius:.4rem;padding:.2rem .5rem;white-space:nowrap}
+.langdd{position:relative}
+.langcur{display:flex;align-items:center;gap:.5rem;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:.35rem .75rem;color:var(--ink);font:500 .85rem var(--ui);cursor:pointer}
+.langcur:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.langcur .lf{display:flex}
+.langcur .lf svg{width:1.3rem;height:.9rem;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.15)}
+.langcur .lc{width:1rem;height:1rem;flex:none;transition:transform .15s}
+.langcur[aria-expanded="true"] .lc{transform:rotate(180deg)}
+.lang{position:absolute;top:calc(100% + .3rem);inset-inline-end:0;min-width:10.5rem;z-index:60;background:var(--card);border:1px solid var(--line);border-radius:.6rem;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:.25rem;display:flex;flex-direction:column}
+.lang[hidden]{display:none}
+.lang button:hover{background:var(--bg)}
+.lang button{display:flex;align-items:center;gap:.6rem;width:100%;background:none;border:0;border-radius:.4rem;color:var(--ink);padding:.5rem .7rem;font:500 .85rem var(--ui);cursor:pointer;text-align:start}
+.lang button[aria-selected="true"]{background:var(--accent-soft);color:var(--accent)}
+.lang button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.lang svg{width:1.3rem;height:.9rem;border-radius:2px;flex:none;box-shadow:0 0 0 1px rgba(0,0,0,.15)}
+.layout{display:grid;gap:1rem;grid-template-columns:minmax(0,1fr);grid-template-areas:"emp" "doc" "law";align-items:start}
+@media (min-width:900px){.layout{grid-template-columns:minmax(17rem,5fr) minmax(0,8fr);grid-template-areas:"emp doc" "law law"}}
+@media (min-width:1500px){.layout{grid-template-columns:minmax(17rem,3fr) minmax(0,6.4fr) minmax(17rem,3fr);grid-template-areas:"emp doc law"}}
+.p-emp{grid-area:emp}.p-doc{grid-area:doc}.p-law{grid-area:law}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:.8rem;padding:1.05rem 1.2rem;min-width:0}
+.panel h2{margin:0 0 .15rem;font-size:.75rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.panel .sub{margin:0 0 .8rem;font-size:.85rem;color:var(--muted)}
+/* Empfang */
+.stage{position:relative;height:13.5rem;border-radius:.65rem;background:var(--stage);border:1px solid var(--line);overflow:hidden;display:grid;place-items:center}
+.stage svg.sil{width:11rem;height:auto;max-height:11.2rem}
+.frame{position:absolute;inset:1.6rem 20%;pointer-events:none;opacity:0;transition:opacity .25s}
+.frame i{position:absolute;width:1.4rem;height:1.4rem;border:3px solid var(--accent)}
+.frame i:nth-child(1){left:0;top:0;border-right:0;border-bottom:0;border-top-left-radius:6px}
+.frame i:nth-child(2){right:0;top:0;border-left:0;border-bottom:0;border-top-right-radius:6px}
+.frame i:nth-child(3){left:0;bottom:0;border-right:0;border-top:0;border-bottom-left-radius:6px}
+.frame i:nth-child(4){right:0;bottom:0;border-left:0;border-top:0;border-bottom-right-radius:6px}
+.scan{position:absolute;left:20%;right:20%;top:1.6rem;height:2px;background:var(--accent);box-shadow:0 0 12px var(--accent);opacity:0}
+.stage[data-s="scan"] .frame,.stage[data-s="match"] .frame{opacity:1}
+.stage[data-s="match"] .frame i{border-color:var(--ok)}
+@media (prefers-reduced-motion:no-preference){.stage[data-s="scan"] .scan{opacity:1;animation:sweep 1.4s ease-in-out infinite}@keyframes sweep{0%,100%{top:1.6rem}50%{top:calc(100% - 1.7rem)}}}
+.egk{position:absolute;inset-inline-start:.9rem;bottom:.9rem;opacity:0;font:500 .75rem var(--mono);color:var(--accent);background:var(--accent-soft);border-radius:.4rem;padding:.2rem .5rem;transition:opacity .25s}
+.stage[data-s="egk"] .egk{opacity:1}
+.cap{position:absolute;inset-inline-start:.75rem;bottom:.6rem;font-size:.7rem;color:var(--muted)}
+.capr{position:absolute;inset-inline-end:.75rem;top:.6rem;font:500 .7rem var(--mono);color:var(--muted)}
+.stage[data-s="egk"] .cap,.stage[data-s="egk"] .capr{display:none}
+.ctl{display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap;margin:.9rem 0 .4rem}
+.consent{display:flex;align-items:center;gap:.65rem;font-size:.85rem}
+.tg{width:2.75rem;height:1.6rem;border-radius:.8rem;border:1px solid var(--line);background:var(--line);position:relative;cursor:pointer;padding:0;flex:none}
+.tg i{position:absolute;top:.12rem;inset-inline-start:.12rem;width:1.25rem;height:1.25rem;border-radius:50%;background:var(--muted);transition:transform .15s}
+.tg[aria-checked="true"]{background:var(--accent);border-color:var(--accent)}
+.tg[aria-checked="true"] i{transform:translateX(1.1rem);background:var(--card)}
+[dir="rtl"] .tg[aria-checked="true"] i{transform:translateX(-1.1rem)}
+.tg:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{border-radius:.5rem;border:1px solid var(--line);background:transparent;color:var(--ink);padding:.55rem .9rem;font:500 .9rem var(--ui);cursor:pointer}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--card)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btns{display:flex;gap:.5rem;flex-wrap:wrap}
+ol.steps{list-style:none;margin:.8rem 0 0;padding:0;border-top:1px solid var(--line)}
+ol.steps li{display:flex;align-items:center;gap:.65rem;padding:.55rem 0;border-bottom:1px solid var(--line);font-size:.9rem;color:var(--muted)}
+ol.steps .d{flex:none;width:1.4rem;height:1.4rem;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font:500 .7rem var(--mono)}
+ol.steps li.act{color:var(--ink)}
+ol.steps li.act .d{border-color:var(--accent);color:var(--accent)}
+ol.steps li.done{color:var(--ink)}
+ol.steps li.done .d{background:var(--ok);border-color:var(--ok);color:var(--card)}
+.confirm{margin-top:.8rem;border:1px solid var(--accent);background:var(--accent-soft);border-radius:.65rem;padding:.8rem .9rem}
+.confirm p{margin:0 0 .65rem;font-size:.9rem}
+.confirm[hidden]{display:none}
+.status{margin:.65rem 0 0;font-size:.85rem;color:var(--muted);min-height:1.3rem}
+/* Arztansicht */
+.empty{display:grid;place-items:center;text-align:center;min-height:24rem;color:var(--muted);padding:1.2rem}
+.empty b{display:block;color:var(--ink);font-weight:500;margin-bottom:.25rem;font-size:1.1rem}
+.chart[hidden],.empty[hidden]{display:none}
+.pt{display:flex;justify-content:space-between;align-items:flex-start;gap:.8rem;flex-wrap:wrap;padding-bottom:.8rem;border-bottom:1px solid var(--line)}
+.pt h3{margin:0;font-size:1.7rem;font-weight:600;letter-spacing:-.01em}
+.pt .meta{margin:.15rem 0 0;color:var(--muted);font-size:.85rem;font-family:var(--mono)}
+.pill{display:inline-block;font:500 .75rem var(--ui);border:1px solid currentColor;border-radius:999px;padding:.12rem .65rem;white-space:nowrap}
+.pill.ok{color:var(--ok);background:var(--ok-soft)}
+.pill.warn{color:var(--warn);background:var(--warn-soft)}
+.pill.info{color:var(--accent);background:var(--accent-soft)}
+.tools{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin-top:.9rem}
+.tools .lbl{font-size:.8rem;color:var(--muted)}
+.seg{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;flex-wrap:wrap}
+.seg button{background:none;border:0;color:var(--muted);padding:.4rem .9rem;font:500 .85rem var(--ui);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.hintline{margin:.5rem 0 0;font-size:.85rem;color:var(--muted)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:.8rem;align-items:start;margin-top:.9rem}
+.tile{border:1px solid var(--line);border-radius:.75rem;background:var(--card);overflow:hidden;transition:border-color .15s,box-shadow .15s}
+.tile.warn{border-color:var(--warn)}
+.tile.open{border-color:var(--accent)}
+@media (min-width:800px){.tile.open{grid-column:span 2}}
+.tile.gz{box-shadow:0 0 0 3px var(--gz)}
+.tbtn{all:unset;display:block;width:100%;box-sizing:border-box;padding:.8rem .95rem;cursor:pointer}
+.tbtn:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.tl{display:block;font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.tc{display:flex;align-items:baseline;justify-content:space-between;gap:.5rem;margin-top:.2rem}
+.tc .v{font-size:1.9rem;font-weight:500;font-family:var(--mono);font-variant-numeric:tabular-nums;line-height:1.2}
+.tc .v.txt{font-family:var(--ui);font-size:1.5rem}
+.tc svg{width:1.1rem;height:1.1rem;flex:none;fill:var(--muted);transition:transform .2s}
+.tile.open .tc svg{transform:rotate(180deg)}
+.tf{margin-top:.35rem;min-height:1.4rem}
+.td{display:grid;grid-template-rows:0fr;transition:grid-template-rows .22s ease}
+.tile.open .td{grid-template-rows:1fr}
+@media (prefers-reduced-motion:reduce){.td,.tile{transition:none}}
+.tdi{overflow:hidden;min-height:0}
+.tdi>div{padding:0 .95rem .9rem;border-top:1px dashed var(--line);padding-top:.7rem}
+.dt{margin:0 0 .5rem;font-size:.95rem}
+.ev{margin-top:.6rem}
+.ev b{display:block;font-size:.8rem;font-weight:600}
+.ev span{display:block;font-size:.72rem;color:var(--muted);margin-bottom:.35rem}
+ol.trl{list-style:none;margin:0;padding:0}
+.trl li{display:grid;grid-template-columns:4.2rem 5rem minmax(0,1fr);gap:.5rem;padding:.4rem .5rem;border-radius:.4rem;border-inline-start:3px solid transparent;font-size:.85rem;color:var(--muted)}
+.trl .tm{font:400 .72rem var(--mono);padding-top:.1rem}
+.trl .wh{font-weight:500}
+.trl li.hl{background:var(--accent-soft);color:var(--ink);border-inline-start-color:var(--accent)}
+.trl li.gz{outline:2px solid var(--gz);color:var(--ink)}
+@media (max-width:560px){.trl li{grid-template-columns:minmax(0,1fr);gap:0}}
+.range{margin-top:.7rem}
+.range .rt{display:flex;justify-content:space-between;gap:.6rem;flex-wrap:wrap;font-size:.75rem;color:var(--muted);margin-bottom:.4rem}
+.track{position:relative;height:.65rem;border-radius:.35rem;background:var(--line);direction:ltr}
+.band{position:absolute;top:0;bottom:0;border-radius:.35rem;background:var(--ok-soft);border:1px solid var(--ok)}
+.mk{position:absolute;top:-.25rem;width:4px;height:1.15rem;border-radius:2px;transform:translateX(-2px)}
+.mk.prev{background:var(--muted)}
+.mk.now{background:var(--warn)}
+.rl{display:flex;gap:1rem;flex-wrap:wrap;font-size:.75rem;color:var(--muted);margin-top:.5rem}
+.rl i{display:inline-block;width:.65rem;height:.65rem;border-radius:2px;margin-inline-end:.35rem;vertical-align:-1px}
+.eyenote{margin:.9rem 0 0;font-size:.78rem;color:var(--muted)}
+/* Blick */
+#gaze{position:fixed;left:0;top:0;width:3.6rem;height:3.6rem;margin:-1.8rem 0 0 -1.8rem;pointer-events:none;z-index:50;display:none;will-change:transform}
+#gaze.on{display:block}
+#gaze svg{width:100%;height:100%;overflow:visible}
+#gaze .r0{fill:rgba(214,51,108,.10);stroke:var(--gz);stroke-width:2.5}
+#gaze .rp{fill:none;stroke:var(--gz);stroke-width:5;stroke-linecap:round;transform:rotate(-90deg);transform-origin:30px 30px}
+#gaze .dot{fill:var(--gz)}
+#gaze .lab{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:.5rem;background:var(--gz);color:#fff;font:600 .75rem var(--ui);padding:.15rem .5rem;border-radius:.4rem;white-space:nowrap;opacity:0}
+#gaze.dw .lab{opacity:1}
+/* Recht */
+.items{display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:.75rem;margin-top:.7rem}
+.it{border:1px solid var(--line);border-radius:.65rem;padding:.75rem .9rem}
+.it b{display:block;font-weight:600;margin-bottom:.25rem;font-size:.9rem}
+.it p{margin:0;font-size:.82rem;color:var(--muted)}
+.foot{margin:.9rem .1rem 0;font-size:.75rem;color:var(--muted)}
+[dir="rtl"] .n,[dir="rtl"] .meta{direction:ltr;text-align:right}
+</style>
+
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <header class="top">
+    <div>
+      <h1 data-i18n="h1"></h1>
+      <p data-i18n="tag"></p>
+    </div>
+    <div class="hdr-r">
+      <div class="langdd"><button type="button" class="langcur" id="langCur" aria-haspopup="listbox" aria-expanded="false" aria-controls="lang"><span class="lf"></span><span class="ll"></span><svg class="lc" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z" fill="currentColor"/></svg></button>
+      <div class="lang" id="lang" role="listbox" aria-label="Language" hidden>
+        <button type="button" data-lang="de" aria-pressed="true" title="Deutsch"><svg viewBox="0 0 22 15" aria-hidden="true"><rect width="22" height="5" fill="#000"/><rect y="5" width="22" height="5" fill="#D00"/><rect y="10" width="22" height="5" fill="#FFCE00"/></svg><span>Deutsch</span></button>
+        <button type="button" data-lang="en" aria-pressed="false" title="English"><svg viewBox="0 0 22 15" aria-hidden="true"><g><rect width="22" height="15" fill="#012169"/><path d="M0 0L22 15M22 0L0 15" stroke="#fff" stroke-width="3"/><path d="M0 0L22 15M22 0L0 15" stroke="#C8102E" stroke-width="1.2"/><rect x="9" width="4" height="15" fill="#fff"/><rect y="5.5" width="22" height="4" fill="#fff"/><rect x="9.8" width="2.4" height="15" fill="#C8102E"/><rect y="6.3" width="22" height="2.4" fill="#C8102E"/></g></svg><span>English</span></button>
+        <button type="button" data-lang="ru" aria-pressed="false" title="Русский"><svg viewBox="0 0 22 15" aria-hidden="true"><rect width="22" height="5" fill="#fff"/><rect y="5" width="22" height="5" fill="#0039A6"/><rect y="10" width="22" height="5" fill="#D52B1E"/></svg><span>Русский</span></button>
+        <button type="button" data-lang="he" aria-pressed="false" title="עברית"><svg viewBox="0 0 22 15" aria-hidden="true"><rect width="22" height="15" fill="#fff"/><rect y="1.8" width="22" height="1.7" fill="#0038B8"/><rect y="11.5" width="22" height="1.7" fill="#0038B8"/><path d="M11 4.6L13.6 9H8.4zM11 10.4L13.6 6H8.4z" fill="none" stroke="#0038B8" stroke-width=".6"/></svg><span>עברית</span></button>
+        <button type="button" data-lang="tr" aria-pressed="false" title="Türkçe"><svg viewBox="0 0 22 15" aria-hidden="true"><rect width="22" height="15" fill="#E30A17"/><circle cx="8.2" cy="7.5" r="3.9" fill="#fff"/><circle cx="9.4" cy="7.5" r="3.1" fill="#E30A17"/><polygon points="14.3,5.8 14.7,6.95 15.917,6.975 14.947,7.71 15.299,8.875 14.3,8.18 13.301,8.875 13.653,7.71 12.683,6.975 13.9,6.95" fill="#fff"/></svg><span>Türkçe</span></button>
+      </div></div>
+      <span class="demo" data-i18n="demo"></span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <section class="panel p-emp" aria-labelledby="h-emp">
+      <h2 id="h-emp" data-i18n="emp.h"></h2>
+      <p class="sub" data-i18n="emp.sub"></p>
+      <div class="stage" id="stage" data-s="idle">
+        <svg class="sil" viewBox="0 0 160 170" aria-hidden="true"><circle cx="80" cy="92" r="72" fill="#CFE6EC"/><path d="M22 168c0-34 26-52 58-52s58 18 58 52z" fill="#0B6E8A"/><rect x="70" y="100" width="20" height="24" rx="8" fill="#D49C74"/><path d="M38 72c0-32 18-50 42-50s42 18 42 50c0 26-6 44-14 52l-14-8H66l-14 8c-8-8-14-26-14-52z" fill="#2B1B17"/><ellipse cx="80" cy="76" rx="28" ry="32" fill="#E0AE86"/><path d="M52 68c4-20 20-28 34-26 12 2 22 10 22 26-10-8-22-12-34-10-8 2-16 6-22 10z" fill="#2B1B17"/><circle cx="68" cy="80" r="3.4" fill="#2B1B17"/><circle cx="92" cy="80" r="3.4" fill="#2B1B17"/><circle cx="69" cy="78.8" r="1" fill="#fff"/><circle cx="93" cy="78.8" r="1" fill="#fff"/><path d="M62 72q6-4 12-1M86 71q6-3 12 1" stroke="#2B1B17" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M80 82q-3 7 1 8" stroke="#B9835E" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M70 94q10 8 20 0" stroke="#8A3B35" stroke-width="2.6" stroke-linecap="round" fill="none"/><circle cx="60" cy="90" r="5" fill="#E58F86" opacity=".35"/><circle cx="100" cy="90" r="5" fill="#E58F86" opacity=".35"/><path d="M62 118h36l-18 20z" fill="#D49C74"/></svg>
+        <div class="frame"><i></i><i></i><i></i><i></i></div>
+        <div class="scan"></div>
+        <span class="egk">eGK</span>
+        <span class="cap" data-i18n="cap"></span>
+        <span class="capr" id="capr"></span>
+      </div>
+      <div class="ctl">
+        <label class="consent" for="tgConsent">
+          <button class="tg" id="tgConsent" type="button" role="switch" aria-checked="true"><i></i></button>
+          <span data-i18n="consent"></span>
+        </label>
+      </div>
+      <div class="btns">
+        <button class="btn pri" id="go" type="button" data-i18n="go"></button>
+        <button class="btn" id="reset" type="button" data-i18n="reset"></button>
+      </div>
+      <ol class="steps" id="steps"></ol>
+      <div class="confirm" id="confirm" hidden>
+        <p data-i18n-html="confirm"></p>
+        <div class="btns"><button class="btn pri" id="yes" type="button" data-i18n="yes"></button><button class="btn" id="no" type="button" data-i18n="no"></button></div>
+      </div>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="panel p-doc" aria-labelledby="h-arzt">
+      <h2 id="h-arzt" data-i18n="doc.h"></h2>
+      <p class="sub" data-i18n="doc.sub"></p>
+      <div class="empty" id="empty"><div><b data-i18n="empty.b"></b><span data-i18n="empty.t"></span></div></div>
+      <div class="chart" id="chart" hidden>
+        <div class="pt">
+          <div>
+            <h3>Hoffmann-Khalil, Sara</h3>
+            <p class="meta" data-i18n="meta"></p>
+          </div>
+          <div style="display:flex;gap:.4rem;flex-wrap:wrap"><span class="pill info" id="chipId"></span><span class="pill info" data-i18n="chip.last"></span></div>
+        </div>
+        <div class="tools">
+          <span class="lbl" data-i18n="mode.l"></span>
+          <div class="seg" id="modes">
+            <button type="button" data-m="click" aria-pressed="true" data-i18n="mode.click"></button>
+            <button type="button" data-m="gaze" aria-pressed="false" data-i18n="mode.gaze"></button>
+            <button type="button" data-m="tour" aria-pressed="false" data-i18n="mode.tour"></button>
+          </div>
+        </div>
+        <p class="hintline" id="modeHint"></p>
+        <div class="tiles" id="tiles"></div>
+        <p class="eyenote" data-i18n="eyenote"></p>
+      </div>
+    </section>
+
+    <section class="panel p-law" aria-labelledby="h-law">
+      <h2 id="h-law" data-i18n="l.h"></h2>
+      <p class="sub" style="margin:0" data-i18n="l.sub"></p>
+      <div class="items" id="items"></div>
+      <p class="foot" data-i18n="foot"></p>
+    </section>
+  </div>
+</div>
+
+<div id="gaze" aria-hidden="true">
+  <svg viewBox="0 0 60 60"><circle class="r0" cx="30" cy="30" r="26"/><circle class="rp" id="gzp" cx="30" cy="30" r="26" stroke-dasharray="163.4" stroke-dashoffset="163.4"/><circle class="dot" cx="30" cy="30" r="4"/></svg>
+  <span class="lab" id="gzlab"></span>
+</div>
+
+<script>
+(function(){
+"use strict";
+var $=function(s){return document.querySelector(s)};
+var L={
+de:{
+h1:"Praxis Check-in",tag:"Anmeldung am Empfang, nur die Hinweise, die die Ärztin oder der Arzt wirklich braucht",demo:"DEMO · fiktive Daten",
+"emp.h":"Empfang","emp.sub":"Tablet am Eingang. Die Kamera ist nur mit Einwilligung aktiv.","cap":"Gezeichnete Figur, kein echtes Foto",
+"capr.ready":"Kamera bereit","capr.on":"Kamera aktiv","capr.match":"Treffer",
+consent:"Einwilligung zur Gesichtserkennung liegt vor",go:"Patientin kommt an",reset:"Zurücksetzen",
+"step.face.1":"Gesicht erkannt (lokal auf dem Gerät)","step.face.2":"Abgleich mit der Patientenakte","step.face.3":"Identität durch MFA bestätigt","step.face.4":"Vitalwerte vom Messplatz übernommen",
+"step.egk.1":"Keine Einwilligung: Kamera bleibt aus","step.egk.2":"Gesundheitskarte (eGK) eingelesen","step.egk.3":"Identität durch MFA bestätigt","step.egk.4":"Vitalwerte vom Messplatz übernommen",
+confirm:"<b>Treffer in der Patientenakte:</b> Hoffmann-Khalil, Sara (34). Ist das die Person am Empfang?",yes:"Ja, bestätigen (MFA)",no:"Nein, manuell suchen",
+"s.search":"Suche Gesicht ...","s.found":"Gesicht erkannt. Vergleiche mit gespeicherten Mustern ...","s.wait":"Warte auf Bestätigung durch die MFA.","s.nocons":"Keine Einwilligung: Kamera ist aus.","s.card":"Karte eingelesen. Akte gefunden.","s.reading":"Identität bestätigt. Lese Vitalwerte vom Messplatz ...","s.done":"Fertig. Die Arztansicht ist geöffnet.","s.rej":"Kein Treffer bestätigt. Die MFA sucht die Akte manuell. Es wurde nichts geöffnet.",
+"doc.h":"Arztansicht","doc.sub":"Nur Hinweise: Die Ärztin oder der Arzt kennt die Patientin ja. Details öffnen sich per Klick oder Blick.",
+"empty.b":"Wartet auf Check-in","empty.t":"Starten Sie den Ablauf mit „Patientin kommt an“.",
+meta:"34 J. · geb. 12.03.1992 · GKV (Demo) · Akte-Nr. D-004711","chip.face":"Anmeldung per Gesicht","chip.egk":"Anmeldung per eGK","chip.last":"letzter Besuch vor 14 Tagen",
+"mode.l":"Details öffnen per:","mode.click":"Klick","mode.gaze":"Blick (Maus als Blick)","mode.tour":"Show me (Automatik)",
+"hint.click":"Klicken Sie auf einen Hinweis, um die Details zu öffnen.","hint.gaze":"Der Ring zeigt, wohin die Ärztin schaut. Bleibt der Blick 0,8 Sekunden auf einem Hinweis, öffnen sich die Details genau dort.","hint.tour":"Show me: Der Blick wandert von selbst von Hinweis zu Hinweis.",
+"gz.dwell":"Blick verweilt",
+eyenote:"Echtes Eye-Tracking braucht Spezialhardware oder eine Webcam. Hier wird der Blick simuliert, es wird nichts aufgezeichnet.",
+"t.pulse":"Puls","t.temp":"Temperatur","t.bp":"Blutdruck","t.kids":"Kinder","t.blood":"Blutgruppe","t.origin":"Herkunft",
+"c.pulse":"84","c.temp":"36,4 °C","c.bp":"118/76","c.kids":"Lina 7 · Elias 3","c.blood":"A","c.origin":"gemischt",
+"f.warn":"+12 gegenüber Vorbesuch","f.ok":"unauffällig",
+"d.pulse":"Heute 84 /min, vor 14 Tagen 72 /min (+12). Im Normbereich, aber höher als beim Vorbesuch. Die Einschätzung bleibt bei der Ärztin oder dem Arzt.",
+"d.temp":"Heute 36,4 °C, vor 14 Tagen 36,6 °C. Unauffällig.","d.bp":"Heute 118/76 mmHg, vor 14 Tagen 120/78 mmHg. Unauffällig.",
+"d.kids":"Lina, 7 Jahre, und Elias, 3 Jahre. Aus dem Gespräch vor 14 Tagen.","d.blood":"Blutgruppe A laut Mutterpass, im Gespräch genannt.","d.origin":"Gemischt, nahöstlich und europäisch. Angabe der Patientin, freiwillig.",
+"r.l":"Puls, Skala 40 bis 120 /min","r.r":"Normbereich Ruhepuls 60 bis 100","r.prev":"Vorbesuch 72","r.now":"Heute 84","r.band":"Normbereich",
+ev:"Beleg aus dem Gespräch","tr.sub":"Aufzeichnung mit Einwilligung der Patientin · von der Ärztin bestätigt · erfundenes Beispiel",
+"who.doc":"Ärztin","who.pat":"Patientin",
+"tr.1":"Wie geht es den Kindern?","tr.2":"Gut. Lina ist jetzt sieben und geht in die zweite Klasse, Elias ist drei und noch im Kindergarten.","tr.3":"Gibt es in der Familie etwas, das ich wissen sollte?","tr.4":"Meine Mutter stammt aus dem Libanon, mein Vater ist Deutscher. Sonst ist nichts Besonderes bekannt.","tr.5":"Kennen Sie Ihre Blutgruppe?","tr.6":"Ja, A. Das steht in meinem Mutterpass.","tr.7":"Dann messen wir heute noch einmal Puls und Blutdruck.",
+"l.h":"Datenschutz und Recht in Deutschland","l.sub":"So würde der Ablauf in einer echten Praxis abgesichert. Kein Rechtsrat, vor dem Einsatz mit der Datenschutzbeauftragten abstimmen.",
+"l1.t":"Ausdrückliche Einwilligung","l1.p":"Gesichtsdaten zur Identifizierung sind besondere Kategorien personenbezogener Daten (Art. 9 DSGVO). Die Einwilligung ist freiwillig und widerrufbar. Als Alternative gibt es immer die elektronische Gesundheitskarte (eGK).",
+"l2.t":"Keine Merkmale aus dem Gesicht","l2.p":"Das Gesicht dient nur dem Wiedererkennen. Herkunft, Familie und Blutgruppe werden nie aus dem Bild geschätzt, denn die EU-KI-Verordnung verbietet biometrische Kategorisierung nach ethnischer Herkunft. Die Angaben stammen aus früheren Gesprächen.",
+"l3.t":"Gesprächsaufzeichnung mit Beleg","l3.p":"Aufnahme und Transkript nur mit ausdrücklicher Einwilligung der Patientin (Art. 9 DSGVO, § 201 StGB zur Vertraulichkeit des Wortes). Die KI schlägt Fakten vor und zeigt die Textstelle als Beleg. Erst nach ärztlicher Bestätigung kommt etwas in die Akte.",
+"l4.t":"Mensch bestätigt","l4.p":"Ein Treffer öffnet die Akte erst, nachdem die MFA ihn bestätigt hat. Das verhindert Verwechslungen und ist die Absicherung bei Fehlern.",
+"l5.t":"Datenhaltung","l5.p":"Gespeichert wird ein Vergleichsmuster, kein Foto, nur lokal oder in der EU. Bei Widerruf wird es gelöscht. Die ärztliche Dokumentation wird 10 Jahre aufbewahrt (§ 630f BGB).",
+"l6.t":"Blickdaten","l6.p":"Blickverfolgung kann Rückschlüsse auf Person und Gesundheit erlauben. Nur mit Einwilligung der Nutzerin oder des Nutzers, nur lokal verarbeiten, nicht speichern.",
+"l7.t":"Anbindung an die Praxissoftware","l7.p":"Eine echte Version liest und schreibt über Schnittstellen des Praxisverwaltungssystems (z. B. GDT oder FHIR mit KBV-MIO). In dieser Demo ist nichts angebunden.",
+foot:"Alle Namen, Werte, Zeitangaben und das Transkript sind erfunden. Es wird keine Kamera verwendet und nichts gespeichert."
+},
+en:{
+h1:"Practice check-in",tag:"Check-in at reception, only the clues the doctor really needs",demo:"DEMO · fictional data",
+"emp.h":"Reception","emp.sub":"Tablet at the entrance. The camera is only active with consent.","cap":"Drawn figure, not a real photo",
+"capr.ready":"Camera ready","capr.on":"Camera on","capr.match":"Match",
+consent:"Consent to face recognition is on file",go:"Patient arrives",reset:"Reset",
+"step.face.1":"Face detected (locally on the device)","step.face.2":"Matching against the patient record","step.face.3":"Identity confirmed by the medical assistant","step.face.4":"Vitals imported from the measuring station",
+"step.egk.1":"No consent: camera stays off","step.egk.2":"Health card (eGK) read","step.egk.3":"Identity confirmed by the medical assistant","step.egk.4":"Vitals imported from the measuring station",
+confirm:"<b>Match in the patient record:</b> Hoffmann-Khalil, Sara (34). Is this the person at reception?",yes:"Yes, confirm (assistant)",no:"No, search manually",
+"s.search":"Looking for a face ...","s.found":"Face detected. Comparing with stored templates ...","s.wait":"Waiting for confirmation by the medical assistant.","s.nocons":"No consent: camera is off.","s.card":"Card read. Record found.","s.reading":"Identity confirmed. Reading vitals from the measuring station ...","s.done":"Done. The doctor's view is open.","s.rej":"No match confirmed. The assistant searches for the record manually. Nothing was opened.",
+"doc.h":"Doctor's view","doc.sub":"Clues only: the doctor already knows the patient. Details open on click or gaze.",
+"empty.b":"Waiting for check-in","empty.t":"Start the flow with “Patient arrives”.",
+meta:"34 y · DOB 12 Mar 1992 · statutory insurance (demo) · Record no. D-004711","chip.face":"Check-in by face","chip.egk":"Check-in by eGK","chip.last":"last visit 14 days ago",
+"mode.l":"Open details by:","mode.click":"Click","mode.gaze":"Gaze (mouse as gaze)","mode.tour":"Show me (automatic)",
+"hint.click":"Click a clue to open its details.","hint.gaze":"The ring shows where the doctor looks. If the gaze rests on a clue for 0.8 seconds, the details open right there.","hint.tour":"Show me: the gaze moves from clue to clue on its own.",
+"gz.dwell":"Gaze resting",
+eyenote:"Real eye tracking needs special hardware or a webcam. Here the gaze is simulated and nothing is recorded.",
+"t.pulse":"Pulse","t.temp":"Temperature","t.bp":"Blood pressure","t.kids":"Children","t.blood":"Blood group","t.origin":"Ancestry",
+"c.pulse":"84","c.temp":"36.4 °C","c.bp":"118/76","c.kids":"Lina 7 · Elias 3","c.blood":"A","c.origin":"mixed",
+"f.warn":"+12 vs. last visit","f.ok":"normal",
+"d.pulse":"Today 84 /min, 14 days ago 72 /min (+12). Within the normal range but higher than at the last visit. The assessment stays with the doctor.",
+"d.temp":"Today 36.4 °C, 14 days ago 36.6 °C. Normal.","d.bp":"Today 118/76 mmHg, 14 days ago 120/78 mmHg. Normal.",
+"d.kids":"Lina, 7 years, and Elias, 3 years. From the conversation 14 days ago.","d.blood":"Blood group A according to the maternity record (Mutterpass), mentioned in the conversation.","d.origin":"Mixed, Middle Eastern and European. Stated by the patient, voluntary.",
+"r.l":"Pulse, scale 40 to 120 /min","r.r":"Normal resting pulse 60 to 100","r.prev":"Last visit 72","r.now":"Today 84","r.band":"Normal range",
+ev:"Evidence from the conversation","tr.sub":"Recorded with the patient's consent · confirmed by the doctor · fictional example, translated from German",
+"who.doc":"Doctor","who.pat":"Patient",
+"tr.1":"How are the children?","tr.2":"Fine. Lina is seven now and in second grade, Elias is three and still in kindergarten.","tr.3":"Is there anything in the family I should know about?","tr.4":"My mother comes from Lebanon, my father is German. Nothing else special is known.","tr.5":"Do you know your blood group?","tr.6":"Yes, A. It's in my maternity record.","tr.7":"Then we'll measure pulse and blood pressure again today.",
+"l.h":"Data protection and law in Germany","l.sub":"This is how the process would be secured in a real practice. Not legal advice; check with the data protection officer before use.",
+"l1.t":"Explicit consent","l1.p":"Face data used for identification is a special category of personal data (Art. 9 GDPR). Consent is voluntary and can be withdrawn. The electronic health card (eGK) is always offered as an alternative.",
+"l2.t":"No traits from the face","l2.p":"The face is only used to recognize the patient. Ancestry, family and blood group are never estimated from the image, because the EU AI Act prohibits biometric categorisation by ethnic origin. The details come from earlier conversations.",
+"l3.t":"Recorded conversations with evidence","l3.p":"Recording and transcript only with the patient's explicit consent (Art. 9 GDPR, § 201 StGB on the confidentiality of the spoken word). The AI proposes facts and shows the passage as evidence. Only after the doctor confirms does anything enter the record.",
+"l4.t":"A human confirms","l4.p":"A match opens the record only after the medical assistant has confirmed it. This prevents mix-ups and is the safeguard against errors.",
+"l5.t":"Data storage","l5.p":"A comparison template is stored, not a photo, only locally or in the EU. It is deleted on withdrawal of consent. Medical documentation is kept for 10 years (§ 630f BGB).",
+"l6.t":"Gaze data","l6.p":"Gaze tracking can reveal personal and health information. Use only with the user's consent, process locally, do not store.",
+"l7.t":"Integration with the practice software","l7.p":"A real version reads and writes through interfaces of the practice management system (e.g. GDT or FHIR with KBV-MIO). Nothing is connected in this demo.",
+foot:"All names, values, times and the transcript are invented. No camera is used and nothing is stored."
+},
+ru:{
+h1:"Регистрация в практике",tag:"Регистрация на ресепшене, только те подсказки, которые действительно нужны врачу",demo:"ДЕМО · вымышленные данные",
+"emp.h":"Ресепшен","emp.sub":"Планшет у входа. Камера включается только с согласия пациента.","cap":"Нарисованная фигура, не настоящее фото",
+"capr.ready":"Камера готова","capr.on":"Камера включена","capr.match":"Совпадение",
+consent:"Согласие на распознавание лица получено",go:"Пациентка пришла",reset:"Сбросить",
+"step.face.1":"Лицо распознано (локально на устройстве)","step.face.2":"Сверка с картой пациента","step.face.3":"Личность подтверждена медицинским ассистентом","step.face.4":"Показатели получены с измерительного пункта",
+"step.egk.1":"Нет согласия: камера выключена","step.egk.2":"Карта здравоохранения (eGK) считана","step.egk.3":"Личность подтверждена медицинским ассистентом","step.egk.4":"Показатели получены с измерительного пункта",
+confirm:"<b>Совпадение в карте пациента:</b> Hoffmann-Khalil, Sara (34). Это человек на ресепшене?",yes:"Да, подтвердить (ассистент)",no:"Нет, искать вручную",
+"s.search":"Поиск лица ...","s.found":"Лицо распознано. Сравниваю с сохранёнными шаблонами ...","s.wait":"Ожидается подтверждение ассистента.","s.nocons":"Нет согласия: камера выключена.","s.card":"Карта считана. Карта пациента найдена.","s.reading":"Личность подтверждена. Считываю показатели с измерительного пункта ...","s.done":"Готово. Экран врача открыт.","s.rej":"Совпадение не подтверждено. Ассистент ищет карту вручную. Ничего не открыто.",
+"doc.h":"Экран врача","doc.sub":"Только подсказки: врач и так знает пациентку. Подробности открываются по клику или взгляду.",
+"empty.b":"Ожидание регистрации","empty.t":"Запустите процесс кнопкой «Пациентка пришла».",
+meta:"34 г. · род. 12.03.1992 · GKV (демо) · Карта № D-004711","chip.face":"Регистрация по лицу","chip.egk":"Регистрация по eGK","chip.last":"прошлый визит 14 дней назад",
+"mode.l":"Открывать подробности:","mode.click":"Клик","mode.gaze":"Взгляд (мышь вместо взгляда)","mode.tour":"Show me (автоматически)",
+"hint.click":"Нажмите на подсказку, чтобы открыть подробности.","hint.gaze":"Кольцо показывает, куда смотрит врач. Если взгляд задерживается на подсказке 0,8 секунды, подробности открываются прямо там.","hint.tour":"Show me: взгляд сам переходит от подсказки к подсказке.",
+"gz.dwell":"Взгляд задержался",
+eyenote:"Для настоящего отслеживания взгляда нужны специальное оборудование или веб-камера. Здесь взгляд имитируется, ничего не записывается.",
+"t.pulse":"Пульс","t.temp":"Температура","t.bp":"Давление","t.kids":"Дети","t.blood":"Группа крови","t.origin":"Происхождение",
+"c.pulse":"84","c.temp":"36,4 °C","c.bp":"118/76","c.kids":"Lina 7 · Elias 3","c.blood":"A","c.origin":"смешанное",
+"f.warn":"+12 к прошлому визиту","f.ok":"в норме",
+"d.pulse":"Сегодня 84 в минуту, 14 дней назад 72 (+12). В пределах нормы, но выше, чем на прошлом визите. Оценку даёт врач.",
+"d.temp":"Сегодня 36,4 °C, 14 дней назад 36,6 °C. В норме.","d.bp":"Сегодня 118/76 мм рт. ст., 14 дней назад 120/78. В норме.",
+"d.kids":"Lina, 7 лет, и Elias, 3 года. Из разговора 14 дней назад.","d.blood":"Группа крови A по материнскому паспорту (Mutterpass), названа в разговоре.","d.origin":"Смешанное, ближневосточное и европейское. Со слов пациентки, добровольно.",
+"r.l":"Пульс, шкала от 40 до 120 в минуту","r.r":"Норма пульса в покое 60–100","r.prev":"Прошлый визит 72","r.now":"Сегодня 84","r.band":"Норма",
+ev:"Источник из разговора","tr.sub":"Запись с согласия пациентки · подтверждено врачом · вымышленный пример, перевод с немецкого",
+"who.doc":"Врач","who.pat":"Пациентка",
+"tr.1":"Как дела у детей?","tr.2":"Хорошо. Лине сейчас семь, она во втором классе, Элиасу три, он ещё в детском саду.","tr.3":"Есть ли в семье что-то, о чём мне следует знать?","tr.4":"Моя мама родом из Ливана, мой отец немец. Больше ничего особенного не известно.","tr.5":"Вы знаете свою группу крови?","tr.6":"Да, A. Это записано в моём материнском паспорте.","tr.7":"Тогда сегодня ещё раз измерим пульс и давление.",
+"l.h":"Защита данных и право в Германии","l.sub":"Так процесс защищался бы в реальной практике. Не юридическая консультация; перед внедрением согласуйте с уполномоченным по защите данных.",
+"l1.t":"Явное согласие","l1.p":"Данные лица для идентификации относятся к особым категориям персональных данных (ст. 9 GDPR). Согласие добровольно и может быть отозвано. Альтернативой всегда служит электронная карта здравоохранения (eGK).",
+"l2.t":"Никаких признаков по лицу","l2.p":"Лицо используется только для узнавания. Происхождение, семья и группа крови никогда не определяются по изображению, поскольку Регламент ЕС об ИИ запрещает биометрическую категоризацию по этническому происхождению. Данные берутся из прежних разговоров.",
+"l3.t":"Запись разговора с источником","l3.p":"Запись и расшифровка только с явного согласия пациентки (ст. 9 GDPR, § 201 StGB о тайне слова). ИИ предлагает факты и показывает фрагмент как источник. В карту что-либо попадает только после подтверждения врача.",
+"l4.t":"Подтверждает человек","l4.p":"Совпадение открывает карту только после подтверждения ассистентом. Это предотвращает путаницу и защищает от ошибок.",
+"l5.t":"Хранение данных","l5.p":"Хранится шаблон для сравнения, а не фото, только локально или в ЕС. При отзыве согласия он удаляется. Медицинская документация хранится 10 лет (§ 630f BGB).",
+"l6.t":"Данные о взгляде","l6.p":"Отслеживание взгляда может раскрывать сведения о человеке и его здоровье. Только с согласия пользователя, обработка локально, без хранения.",
+"l7.t":"Интеграция с программой практики","l7.p":"Реальная версия читает и пишет через интерфейсы практической системы (например, GDT или FHIR с KBV-MIO). В этом демо ничего не подключено.",
+foot:"Все имена, значения, время и расшифровка вымышлены. Камера не используется, ничего не сохраняется."
+},
+he:{
+h1:"צ'ק-אין במרפאה",tag:"קבלה בדלפק, רק הרמזים שהרופא או הרופאה באמת צריכים",demo:"הדגמה · נתונים בדויים",
+"emp.h":"קבלה","emp.sub":"טאבלט בכניסה. המצלמה פעילה רק בהסכמה.","cap":"דמות מצוירת, לא תמונה אמיתית",
+"capr.ready":"המצלמה מוכנה","capr.on":"המצלמה פעילה","capr.match":"התאמה",
+consent:"קיימת הסכמה לזיהוי פנים",go:"המטופלת מגיעה",reset:"איפוס",
+"step.face.1":"זיהוי פנים (מקומית במכשיר)","step.face.2":"השוואה לתיק המטופלת","step.face.3":"הזהות אושרה על ידי העוזרת הרפואית","step.face.4":"המדדים נקלטו מעמדת המדידה",
+"step.egk.1":"אין הסכמה: המצלמה כבויה","step.egk.2":"כרטיס הבריאות (eGK) נקרא","step.egk.3":"הזהות אושרה על ידי העוזרת הרפואית","step.egk.4":"המדדים נקלטו מעמדת המדידה",
+confirm:"<b>התאמה בתיק המטופלת:</b> Hoffmann-Khalil, Sara (34). האם זו האישה בדלפק הקבלה?",yes:"כן, לאשר (עוזרת רפואית)",no:"לא, לחפש ידנית",
+"s.search":"מחפש פנים ...","s.found":"זוהו פנים. משווה לתבניות שמורות ...","s.wait":"ממתין לאישור העוזרת הרפואית.","s.nocons":"אין הסכמה: המצלמה כבויה.","s.card":"הכרטיס נקרא. התיק נמצא.","s.reading":"הזהות אושרה. קורא מדדים מעמדת המדידה ...","s.done":"הסתיים. תצוגת הרופא נפתחה.","s.rej":"לא אושרה התאמה. העוזרת הרפואית מחפשת את התיק ידנית. דבר לא נפתח.",
+"doc.h":"תצוגת הרופא","doc.sub":"רק רמזים: הרופא או הרופאה כבר מכירים את המטופלת. פרטים נפתחים בלחיצה או במבט.",
+"empty.b":"ממתין לצ'ק-אין","empty.t":"התחילו את התהליך בלחצן „המטופלת מגיעה“.",
+meta:"בת 34 · נולדה 12.03.1992 · GKV (הדגמה) · תיק מס' D-004711","chip.face":"צ'ק-אין בזיהוי פנים","chip.egk":"צ'ק-אין באמצעות eGK","chip.last":"ביקור אחרון לפני 14 ימים",
+"mode.l":"פתיחת פרטים באמצעות:","mode.click":"לחיצה","mode.gaze":"מבט (עכבר במקום מבט)","mode.tour":"Show me (אוטומטי)",
+"hint.click":"לחצו על רמז כדי לפתוח את הפרטים.","hint.gaze":"הטבעת מראה לאן הרופא או הרופאה מסתכלים. אם המבט נח על רמז 0.8 שניות, הפרטים נפתחים בדיוק שם.","hint.tour":"Show me: המבט עובר מעצמו מרמז לרמז.",
+"gz.dwell":"המבט נח",
+eyenote:"מעקב עיניים אמיתי דורש חומרה ייעודית או מצלמת רשת. כאן המבט מדומה ושום דבר לא נקלט.",
+"t.pulse":"דופק","t.temp":"חום","t.bp":"לחץ דם","t.kids":"ילדים","t.blood":"סוג דם","t.origin":"מוצא",
+"c.pulse":"84","c.temp":"36.4 °C","c.bp":"118/76","c.kids":"Lina 7 · Elias 3","c.blood":"A","c.origin":"מעורב",
+"f.warn":"+12 לעומת הביקור הקודם","f.ok":"תקין",
+"d.pulse":"היום 84 לדקה, לפני 14 ימים 72 (+12). בטווח התקין, אך גבוה מהביקור הקודם. ההערכה נשארת בידי הרופא או הרופאה.",
+"d.temp":"היום 36.4 °C, לפני 14 ימים 36.6 °C. תקין.","d.bp":"היום 118/76 mmHg, לפני 14 ימים 120/78 mmHg. תקין.",
+"d.kids":"Lina, בת 7, ו-Elias, בן 3. משיחה לפני 14 ימים.","d.blood":"סוג דם A לפי פנקס ההריון (Mutterpass), הוזכר בשיחה.","d.origin":"מעורב, מזרח־תיכוני ואירופי. לפי דברי המטופלת, מרצון.",
+"r.l":"דופק, סקאלה 40 עד 120 לדקה","r.r":"טווח תקין לדופק במנוחה 60 עד 100","r.prev":"ביקור קודם 72","r.now":"היום 84","r.band":"טווח תקין",
+ev:"הוכחה מהשיחה","tr.sub":"הוקלט בהסכמת המטופלת · אושר על ידי הרופאה · דוגמה בדויה, תרגום מגרמנית",
+"who.doc":"רופאה","who.pat":"מטופלת",
+"tr.1":"מה שלום הילדים?","tr.2":"טוב. לינה בת שבע וכבר בכיתה ב׳, אליאס בן שלוש ועדיין בגן.","tr.3":"יש משהו במשפחה שכדאי שאדע?","tr.4":"אמי מלבנון, אבי גרמני. מעבר לזה לא ידוע על דבר מיוחד.","tr.5":"את מכירה את סוג הדם שלך?","tr.6":"כן, A. זה כתוב בפנקס ההריון שלי.","tr.7":"אז היום נמדוד שוב דופק ולחץ דם.",
+"l.h":"הגנת מידע וחוק בגרמניה","l.sub":"כך התהליך היה מאובטח במרפאה אמיתית. אין זו ייעוץ משפטי; יש להתייעץ עם ממונה הגנת המידע לפני שימוש.",
+"l1.t":"הסכמה מפורשת","l1.p":"נתוני פנים לצורך זיהוי הם קטגוריה מיוחדת של נתונים אישיים (סעיף 9 ל-GDPR). ההסכמה וולונטרית וניתנת לביטול. כרטיס הבריאות האלקטרוני (eGK) מוצע תמיד כחלופה.",
+"l2.t":"אין הסקת מאפיינים מהפנים","l2.p":"הפנים משמשים רק לזיהוי המטופלת. מוצא, משפחה וסוג דם לעולם לא נאמדים מהתמונה, כי חוק הבינה המלאכותית של האיחוד האירופי אוסר סיווג ביומטרי לפי מוצא אתני. הפרטים מגיעים משיחות קודמות.",
+"l3.t":"הקלטת שיחה עם הוכחה","l3.p":"הקלטה ותמלול רק בהסכמה מפורשת של המטופלת (סעיף 9 ל-GDPR, § 201 StGB בדבר חיסיון הדיבור). הבינה המלאכותית מציעה עובדות ומציגה את הקטע כהוכחה. רק לאחר אישור הרופא נכנס משהו לתיק.",
+"l4.t":"אדם מאשר","l4.p":"התאמה פותחת את התיק רק לאחר שהעוזרת הרפואית אישרה אותה. כך נמנעות טעויות זיהוי, וזו ההגנה מפני כשלים.",
+"l5.t":"אחסון נתונים","l5.p":"נשמרת תבנית להשוואה ולא תמונה, רק מקומית או באיחוד האירופי. היא נמחקת עם ביטול ההסכמה. התיעוד הרפואי נשמר 10 שנים (§ 630f BGB).",
+"l6.t":"נתוני מבט","l6.p":"מעקב מבט עשוי לחשוף מידע אישי ובריאותי. רק בהסכמת המשתמש, עיבוד מקומי, ללא שמירה.",
+"l7.t":"חיבור לתוכנת המרפאה","l7.p":"גרסה אמיתית קוראת וכותבת דרך ממשקים של מערכת ניהול המרפאה (למשל GDT או FHIR עם KBV-MIO). בהדגמה זו דבר אינו מחובר.",
+foot:"כל השמות, הערכים, הזמנים והתמלול בדויים. לא נעשה שימוש במצלמה ושום דבר לא נשמר."
+},
+tr:{
+h1:"Muayenehane girişi",tag:"Resepsiyonda kayıt, doktorun gerçekten ihtiyaç duyduğu ipuçları",demo:"DEMO · kurgusal veriler",
+"emp.h":"Resepsiyon","emp.sub":"Girişte tablet. Kamera yalnızca onayla etkinleşir.","cap":"Çizilmiş figür, gerçek fotoğraf değil",
+"capr.ready":"Kamera hazır","capr.on":"Kamera açık","capr.match":"Eşleşme",
+consent:"Yüz tanıma için onay mevcut",go:"Hasta geldi",reset:"Sıfırla",
+"step.face.1":"Yüz algılandı (cihazda yerel olarak)","step.face.2":"Hasta dosyasıyla karşılaştırma","step.face.3":"Kimlik tıbbi asistan tarafından doğrulandı","step.face.4":"Ölçüm değerleri ölçüm istasyonundan alındı",
+"step.egk.1":"Onay yok: kamera kapalı kalır","step.egk.2":"Sağlık kartı (eGK) okundu","step.egk.3":"Kimlik tıbbi asistan tarafından doğrulandı","step.egk.4":"Ölçüm değerleri ölçüm istasyonundan alındı",
+confirm:"<b>Hasta dosyasında eşleşme:</b> Hoffmann-Khalil, Sara (34). Resepsiyondaki kişi bu mu?",yes:"Evet, onayla (asistan)",no:"Hayır, elle ara",
+"s.search":"Yüz aranıyor ...","s.found":"Yüz algılandı. Kayıtlı şablonlarla karşılaştırılıyor ...","s.wait":"Tıbbi asistanın onayı bekleniyor.","s.nocons":"Onay yok: kamera kapalı.","s.card":"Kart okundu. Dosya bulundu.","s.reading":"Kimlik doğrulandı. Değerler ölçüm istasyonundan okunuyor ...","s.done":"Tamam. Doktor görünümü açıldı.","s.rej":"Eşleşme onaylanmadı. Asistan dosyayı elle arıyor. Hiçbir şey açılmadı.",
+"doc.h":"Doktor görünümü","doc.sub":"Yalnızca ipuçları: doktor hastayı zaten tanıyor. Ayrıntılar tıklayınca veya bakınca açılır.",
+"empty.b":"Girişi bekliyor","empty.t":"Akışı “Hasta geldi” ile başlatın.",
+meta:"34 yaş · doğum 12.03.1992 · GKV (demo) · Dosya no. D-004711","chip.face":"Yüzle giriş","chip.egk":"eGK ile giriş","chip.last":"son ziyaret 14 gün önce",
+"mode.l":"Ayrıntıları aç:","mode.click":"Tıklama","mode.gaze":"Bakış (fare bakış yerine)","mode.tour":"Show me (otomatik)",
+"hint.click":"Ayrıntıları açmak için bir ipucuna tıklayın.","hint.gaze":"Halka doktorun nereye baktığını gösterir. Bakış bir ipucunda 0,8 saniye kalırsa ayrıntılar tam orada açılır.","hint.tour":"Show me: bakış ipucundan ipucuna kendiliğinden geçer.",
+"gz.dwell":"Bakış duruyor",
+eyenote:"Gerçek göz takibi özel donanım veya web kamerası gerektirir. Burada bakış simüle edilir, hiçbir şey kaydedilmez.",
+"t.pulse":"Nabız","t.temp":"Vücut ısısı","t.bp":"Tansiyon","t.kids":"Çocuklar","t.blood":"Kan grubu","t.origin":"Köken",
+"c.pulse":"84","c.temp":"36,4 °C","c.bp":"118/76","c.kids":"Lina 7 · Elias 3","c.blood":"A","c.origin":"karışık",
+"f.warn":"önceki ziyarete göre +12","f.ok":"normal",
+"d.pulse":"Bugün dakikada 84, 14 gün önce 72 (+12). Normal aralıkta ama önceki ziyaretten yüksek. Değerlendirme doktora aittir.",
+"d.temp":"Bugün 36,4 °C, 14 gün önce 36,6 °C. Normal.","d.bp":"Bugün 118/76 mmHg, 14 gün önce 120/78 mmHg. Normal.",
+"d.kids":"Lina, 7 yaşında, ve Elias, 3 yaşında. 14 gün önceki görüşmeden.","d.blood":"A kan grubu, hamilelik karnesine (Mutterpass) göre, görüşmede belirtildi.","d.origin":"Karışık, Orta Doğu ve Avrupa kökenli. Hastanın beyanı, isteğe bağlı.",
+"r.l":"Nabız, ölçek dakikada 40 ile 120 arası","r.r":"Dinlenme nabzı normal aralığı 60 ile 100","r.prev":"Önceki ziyaret 72","r.now":"Bugün 84","r.band":"Normal aralık",
+ev:"Görüşmeden kanıt","tr.sub":"Hastanın onayıyla kaydedildi · doktor tarafından onaylandı · kurgusal örnek, Almancadan çevrildi",
+"who.doc":"Doktor","who.pat":"Hasta",
+"tr.1":"Çocuklar nasıl?","tr.2":"İyiler. Lina şimdi yedi yaşında ve ikinci sınıfta, Elias üç yaşında ve hâlâ anaokulunda.","tr.3":"Ailede bilmem gereken bir şey var mı?","tr.4":"Annem Lübnanlı, babam Alman. Başka özel bir durum bilinmiyor.","tr.5":"Kan grubunuzu biliyor musunuz?","tr.6":"Evet, A. Hamilelik karnemde yazıyor.","tr.7":"O zaman bugün nabzı ve tansiyonu bir kez daha ölçelim.",
+"l.h":"Almanya'da veri koruma ve hukuk","l.sub":"Süreç gerçek bir muayenehanede böyle güvence altına alınırdı. Hukuki danışmanlık değildir; kullanmadan önce veri koruma görevlisiyle görüşün.",
+"l1.t":"Açık rıza","l1.p":"Kimlik tespiti için yüz verileri özel kategoride kişisel verilerdir (GDPR madde 9). Rıza gönüllüdür ve geri alınabilir. Alternatif olarak her zaman elektronik sağlık kartı (eGK) sunulur.",
+"l2.t":"Yüzden özellik çıkarımı yok","l2.p":"Yüz yalnızca hastayı yeniden tanımak için kullanılır. Köken, aile ve kan grubu görüntüden asla tahmin edilmez, çünkü AB Yapay Zekâ Tüzüğü etnik kökene göre biyometrik sınıflandırmayı yasaklar. Bilgiler önceki görüşmelerden gelir.",
+"l3.t":"Kanıtlı görüşme kaydı","l3.p":"Kayıt ve döküm yalnızca hastanın açık rızasıyla yapılır (GDPR madde 9, sözün gizliliğine ilişkin § 201 StGB). Yapay zekâ bilgi önerir ve ilgili pasajı kanıt olarak gösterir. Kayda ancak doktor onayladıktan sonra bir şey girer.",
+"l4.t":"İnsan onaylar","l4.p":"Bir eşleşme, dosyayı ancak tıbbi asistan onayladıktan sonra açar. Bu, karışıklıkları önler ve hatalara karşı güvencedir.",
+"l5.t":"Veri saklama","l5.p":"Fotoğraf değil, karşılaştırma şablonu saklanır; yalnızca yerel olarak veya AB içinde. Rıza geri alınınca silinir. Tıbbi dokümantasyon 10 yıl saklanır (§ 630f BGB).",
+"l6.t":"Bakış verileri","l6.p":"Bakış takibi kişi ve sağlık hakkında bilgi ortaya çıkarabilir. Yalnızca kullanıcının rızasıyla, yerel işlenerek, saklanmadan kullanın.",
+"l7.t":"Muayenehane yazılımına bağlantı","l7.p":"Gerçek sürüm, muayenehane yönetim sisteminin arayüzleri üzerinden okur ve yazar (örn. GDT veya KBV-MIO ile FHIR). Bu demoda hiçbir şey bağlı değil.",
+foot:"Tüm adlar, değerler, saatler ve döküm uydurmadır. Kamera kullanılmaz ve hiçbir şey saklanmaz."
+}};
+var lang="de";
+try{var sv=localStorage.getItem("praxisdemo.lang");if(sv&&L[sv])lang=sv}catch(e){}
+function t(k){return (L[lang]&&L[lang][k])||L.de[k]||k}
+
+var stage=$("#stage"),steps=$("#steps"),confirmBox=$("#confirm"),statusEl=$("#status"),capr=$("#capr");
+var chart=$("#chart"),empty=$("#empty"),go=$("#go"),tg=$("#tgConsent"),chip=$("#chipId"),tilesEl=$("#tiles"),modeHint=$("#modeHint");
+var FL={face:["step.face.1","step.face.2","step.face.3","step.face.4"],egk:["step.egk.1","step.egk.2","step.egk.3","step.egk.4"]};
+var flow="face",run=0,timers=[],stepA=-1,stepD=0,stKey="",caprKey="capr.ready",chipKey="chip.face",mode="click",openSet={};
+var TR=[
+ {t:"09:42:10",w:"who.doc",k:""},{t:"09:42:15",w:"who.pat",k:"kids"},{t:"09:43:02",w:"who.doc",k:""},{t:"09:43:09",w:"who.pat",k:"origin"},
+ {t:"09:44:20",w:"who.doc",k:""},{t:"09:44:24",w:"who.pat",k:"blood"},{t:"09:46:30",w:"who.doc",k:"pulse"}
+];
+var TILES=[
+ {k:"pulse",f:"warn",ev:[6],range:true,arrow:true},
+ {k:"temp",f:"ok"},
+ {k:"bp",f:"ok"},
+ {k:"kids",ev:[0,1]},
+ {k:"blood",ev:[4,5]},
+ {k:"origin",ev:[2,3]}
+];
+var CHEV='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg>';
+
+function later(fn,ms){var x=setTimeout(fn,ms);timers.push(x)}
+function clearTimers(){timers.forEach(clearTimeout);timers=[]}
+
+/* --- Sprache --- */
+function applyLang(){
+  document.documentElement.lang=lang;
+  document.documentElement.setAttribute("dir",lang==="he"?"rtl":"ltr");
+  document.querySelectorAll("#lang button").forEach(function(b){var on=b.getAttribute("data-lang")===lang;b.setAttribute("role","option");b.setAttribute("aria-selected",on?"true":"false");b.removeAttribute("aria-pressed");if(on){$("#langCur .lf").innerHTML=b.querySelector("svg").outerHTML;$("#langCur .ll").textContent=b.querySelector("span").textContent}});
+  document.querySelectorAll("[data-i18n]").forEach(function(el){el.textContent=t(el.getAttribute("data-i18n"))});
+  document.querySelectorAll("[data-i18n-html]").forEach(function(el){el.innerHTML=t(el.getAttribute("data-i18n-html"))});
+  paintSteps();statusEl.textContent=stKey?t(stKey):"";capr.textContent=t(caprKey);chip.textContent=t(chipKey);
+  modeHint.textContent=t("hint."+mode);$("#gzlab").textContent=t("gz.dwell");
+  var it=$("#items");it.innerHTML="";
+  for(var i=1;i<=7;i++){var d=document.createElement("div");d.className="it";d.innerHTML="<b>"+t("l"+i+".t")+"</b><p>"+t("l"+i+".p")+"</p>";it.appendChild(d)}
+  if(!chart.hidden)renderBoard();
+}
+
+/* --- Check-in --- */
+function paintSteps(){
+  steps.innerHTML="";
+  FL[flow].forEach(function(key,i){
+    var li=document.createElement("li");
+    li.className=i<stepD?"done":(i===stepA?"act":"");
+    li.innerHTML='<span class="d">'+(i<stepD?"&#10003;":(i+1))+"</span><span>"+t(key)+"</span>";
+    steps.appendChild(li);
+  });
+}
+function renderSteps(a,d){stepA=a;stepD=d;paintSteps()}
+function setStatus(k){stKey=k;statusEl.textContent=k?t(k):""}
+function setCapr(k){caprKey=k;capr.textContent=t(k)}
+function idle(){
+  clearTimers();run++;
+  stage.setAttribute("data-s","idle");setCapr("capr.ready");
+  confirmBox.hidden=true;chart.hidden=true;empty.hidden=false;go.disabled=false;
+  openSet={};setMode("click");
+  flow=tg.getAttribute("aria-checked")==="true"?"face":"egk";
+  renderSteps(-1,0);setStatus("");
+}
+function start(){
+  clearTimers();var my=++run;
+  flow=tg.getAttribute("aria-checked")==="true"?"face":"egk";
+  go.disabled=true;chart.hidden=true;empty.hidden=false;confirmBox.hidden=true;openSet={};setMode("click");
+  if(flow==="face"){
+    stage.setAttribute("data-s","scan");setCapr("capr.on");
+    renderSteps(0,0);setStatus("s.search");
+    later(function(){if(my!==run)return;renderSteps(1,1);setStatus("s.found")},1300);
+    later(function(){if(my!==run)return;stage.setAttribute("data-s","match");setCapr("capr.match");renderSteps(2,2);confirmBox.hidden=false;setStatus("s.wait")},2600);
+  }else{
+    stage.setAttribute("data-s","egk");
+    renderSteps(0,0);setStatus("s.nocons");
+    later(function(){if(my!==run)return;renderSteps(1,1);setStatus("s.card")},1200);
+    later(function(){if(my!==run)return;renderSteps(2,2);confirmBox.hidden=false;setStatus("s.wait")},2200);
+  }
+}
+function confirmId(){
+  var my=run;confirmBox.hidden=true;renderSteps(3,3);setStatus("s.reading");
+  later(function(){
+    if(my!==run)return;
+    renderSteps(4,4);
+    chipKey=flow==="face"?"chip.face":"chip.egk";chip.textContent=t(chipKey);
+    renderBoard();empty.hidden=true;chart.hidden=false;go.disabled=false;setStatus("s.done");
+  },1000);
+}
+function reject(){
+  clearTimers();run++;confirmBox.hidden=true;stage.setAttribute("data-s","idle");setCapr("capr.ready");
+  renderSteps(-1,0);go.disabled=false;setStatus("s.rej");
+}
+
+/* --- Hinweis-Kacheln --- */
+function rangeHTML(){
+  return '<div class="range"><div class="rt"><span>'+t("r.l")+'</span><span>'+t("r.r")+'</span></div><div class="track"><div class="band" style="left:25%;width:50%"></div><div class="mk prev" style="left:40%"></div><div class="mk now" style="left:55%"></div></div><div class="rl"><span><i style="background:var(--muted)"></i>'+t("r.prev")+'</span><span><i style="background:var(--warn)"></i>'+t("r.now")+'</span><span><i style="background:var(--ok-soft);border:1px solid var(--ok)"></i>'+t("r.band")+'</span></div></div>';
+}
+function detailHTML(def){
+  var h='<p class="dt">'+t("d."+def.k)+"</p>";
+  if(def.range)h+=rangeHTML();
+  if(def.ev){
+    h+='<div class="ev"><b>'+t("ev")+"</b><span>"+t("tr.sub")+'</span><ol class="trl">';
+    def.ev.forEach(function(i){
+      var r=TR[i];
+      h+='<li'+(r.k===def.k?' class="hl"':"")+'><span class="tm">'+r.t+'</span><span class="wh">'+t(r.w)+"</span><span>"+t("tr."+(i+1))+"</span></li>";
+    });
+    h+="</ol></div>";
+  }
+  return h;
+}
+function renderBoard(){
+  tilesEl.innerHTML="";
+  TILES.forEach(function(def){
+    var el=document.createElement("div");
+    el.className="tile"+(def.f==="warn"?" warn":"")+(openSet[def.k]?" open":"");
+    el.setAttribute("data-k",def.k);
+    var txt=(def.k==="origin");
+    var flag=def.f?'<span class="pill '+def.f+'">'+t("f."+def.f)+"</span>":"";
+    el.innerHTML='<button class="tbtn" type="button" aria-expanded="'+(openSet[def.k]?"true":"false")+'" aria-controls="d-'+def.k+'"><span class="tl">'+t("t."+def.k)+'</span><span class="tc"><bdi class="v'+(txt?" txt":"")+'">'+t("c."+def.k)+"</bdi>"+CHEV+'</span><span class="tf">'+flag+'</span></button><div class="td" id="d-'+def.k+'"><div class="tdi"><div>'+detailHTML(def)+"</div></div></div>";
+    tilesEl.appendChild(el);
+  });
+}
+function setOpen(k,on,excl){
+  if(on&&excl)Object.keys(openSet).forEach(function(o){if(o!==k)setOpen(o,false)});
+  if(on)openSet[k]=true;else delete openSet[k];
+  var el=tilesEl.querySelector('.tile[data-k="'+k+'"]');
+  if(el){el.classList.toggle("open",!!on);el.querySelector(".tbtn").setAttribute("aria-expanded",on?"true":"false")}
+}
+tilesEl.addEventListener("click",function(e){
+  var b=e.target.closest&&e.target.closest(".tbtn");
+  if(!b)return;
+  var k=b.parentNode.getAttribute("data-k");
+  setOpen(k,!openSet[k],false);
+});
+
+/* --- Blick: Ring, Verweilzeit, Show me --- */
+var ring=$("#gaze"),gzp=$("#gzp"),CIRC=163.4,DWELL=800;
+var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+var gz={x:0,y:0,tx:0,ty:0,tile:null,li:null,dwell:0,last:0,raf:0,active:false};
+function startRing(){
+  if(!gz.x&&!gz.y){gz.x=gz.tx=window.innerWidth/2;gz.y=gz.ty=window.innerHeight/2}
+  ring.classList.add("on");
+  if(!gz.active){gz.active=true;gz.last=0;gz.raf=requestAnimationFrame(loop)}
+}
+function stopRing(){
+  gz.active=false;cancelAnimationFrame(gz.raf);ring.classList.remove("on","dw");
+  if(gz.tile)gz.tile.classList.remove("gz");
+  if(gz.li)gz.li.classList.remove("gz");
+  gz.tile=null;gz.li=null;gz.dwell=0;gzp.style.strokeDashoffset=CIRC;
+}
+function loop(ts){
+  if(!gz.active)return;
+  var dt=gz.last?Math.min(64,ts-gz.last):16;gz.last=ts;
+  var e=reduce?1:0.14;
+  gz.x+=(gz.tx-gz.x)*e;gz.y+=(gz.ty-gz.y)*e;
+  ring.style.transform="translate("+gz.x+"px,"+gz.y+"px)";
+  var el=document.elementFromPoint(gz.x,gz.y);
+  var tile=el&&el.closest?el.closest(".tile"):null;
+  var li=el&&el.closest?el.closest(".trl li"):null;
+  if(li!==gz.li){if(gz.li)gz.li.classList.remove("gz");gz.li=li;if(li)li.classList.add("gz")}
+  if(tile!==gz.tile){
+    if(gz.tile)gz.tile.classList.remove("gz");
+    gz.tile=tile;gz.dwell=0;
+    if(tile)tile.classList.add("gz");
+  }else if(tile&&!tile.classList.contains("open")){
+    gz.dwell+=dt;
+    if(gz.dwell>=DWELL){setOpen(tile.getAttribute("data-k"),true,true);gz.dwell=0}
+  }
+  var prog=(tile&&!tile.classList.contains("open"))?Math.min(gz.dwell/DWELL,1):0;
+  gzp.style.strokeDashoffset=CIRC*(1-prog);
+  ring.classList.toggle("dw",prog>0);
+  gz.raf=requestAnimationFrame(loop);
+}
+document.addEventListener("pointermove",function(e){
+  if(mode==="gaze"){gz.tx=e.clientX;gz.ty=e.clientY}
+});
+function setMode(m){
+  clearTimers();
+  if(m!=="tour"&&mode==="tour"){/* Tour beenden */}
+  mode=m;
+  document.querySelectorAll("#modes button").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-m")===m?"true":"false")});
+  modeHint.textContent=t("hint."+m);
+  if(m==="click"||chart.hidden){stopRing()}
+  else{startRing()}
+  if(m==="tour")runTour();
+}
+function runTour(){
+  var keys=["pulse","kids","blood","origin"],i=0,my=run;
+  Object.keys(openSet).forEach(function(k){setOpen(k,false)});
+  function step(){
+    if(mode!=="tour"||my!==run)return;
+    if(i>=keys.length){later(function(){if(mode==="tour")setMode("click")},1800);return}
+    var tile=tilesEl.querySelector('.tile[data-k="'+keys[i]+'"]');
+    if(!tile){i++;step();return}
+    tile.scrollIntoView({block:"nearest"});
+    later(function(){
+      var r=tile.querySelector(".tbtn").getBoundingClientRect();
+      gz.tx=r.left+r.width/2;gz.ty=r.top+r.height/2;
+      i++;
+      later(step,DWELL+1500+2400);
+    },80);
+  }
+  step();
+}
+$("#modes").addEventListener("click",function(e){
+  var b=e.target.closest&&e.target.closest("button");
+  if(b)setMode(b.getAttribute("data-m"));
+});
+
+/* --- Bedienung --- */
+tg.addEventListener("click",function(){tg.setAttribute("aria-checked",tg.getAttribute("aria-checked")==="true"?"false":"true");idle()});
+go.addEventListener("click",start);
+$("#reset").addEventListener("click",idle);
+$("#yes").addEventListener("click",confirmId);
+$("#no").addEventListener("click",reject);
+$("#lang").addEventListener("click",function(e){
+  var b=e.target.closest&&e.target.closest("button[data-lang]");
+  if(!b)return;
+  lang=b.getAttribute("data-lang");
+  try{localStorage.setItem("praxisdemo.lang",lang)}catch(x){}
+  applyLang();closeLang();$("#langCur").focus();
+});
+var langCur=$("#langCur"),langMenu=$("#lang");
+function closeLang(){langMenu.hidden=true;langCur.setAttribute("aria-expanded","false")}
+function openLang(){langMenu.hidden=false;langCur.setAttribute("aria-expanded","true");var s=langMenu.querySelector('[aria-selected="true"]');if(s)s.focus()}
+langCur.addEventListener("click",function(){if(langMenu.hidden)openLang();else closeLang()});
+document.addEventListener("click",function(e){if(!langMenu.hidden&&!(e.target.closest&&e.target.closest(".langdd")))closeLang()});
+document.addEventListener("keydown",function(e){
+  if(langMenu.hidden)return;
+  var bs=[].slice.call(langMenu.querySelectorAll("button")),i=bs.indexOf(document.activeElement);
+  if(e.key==="Escape"){closeLang();langCur.focus()}
+  else if(e.key==="ArrowDown"){e.preventDefault();bs[(i+1)%bs.length].focus()}
+  else if(e.key==="ArrowUp"){e.preventDefault();bs[(i+bs.length-1)%bs.length].focus()}
+});
+applyLang();idle();
+})();
+</script>
+
+</body>
+</html>
