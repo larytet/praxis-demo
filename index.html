@@ -135,7 +135,7 @@ table.rxt{width:100%;border-collapse:collapse;margin:.4rem 0}
 .seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
 .seg button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .hintline{margin:.5rem 0 0;font-size:.85rem;color:var(--muted)}
-.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:.8rem;align-items:start;margin-top:.9rem}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));grid-auto-flow:dense;gap:.8rem;align-items:start;margin-top:.9rem}
 .tile{border:1px solid var(--line);border-radius:.75rem;background:var(--card);overflow:hidden;transition:border-color .15s,box-shadow .15s}
 .tile.warn{border-color:var(--warn)}
 .tile.open{border-color:var(--accent)}
@@ -634,7 +634,7 @@ function renderBoard(){
     var el=document.createElement("div");
     el.className="tile"+(def.f==="warn"?" warn":"")+(openSet[def.k]?" open":"");
     el.setAttribute("data-k",def.k);
-    var txt=(def.k==="origin"||def.k==="lab");
+    var txt=(def.k==="origin"||def.k==="lab"||def.k==="kids");
     var flag=def.f?'<span class="pill '+def.f+'">'+t(def.fk||("f."+def.f))+"</span>":"";
     el.innerHTML='<button class="tbtn" type="button" aria-expanded="'+(openSet[def.k]?"true":"false")+'" aria-controls="d-'+def.k+'"><span class="tl">'+t("t."+def.k)+'</span><span class="tc"><bdi class="v'+(txt?" txt":"")+'">'+t("c."+def.k)+"</bdi>"+CHEV+'</span><span class="tf">'+flag+'</span></button><div class="td" id="d-'+def.k+'"><div class="tdi"><div>'+detailHTML(def)+"</div></div></div>";
     if(def.k==="rx"){el.classList.add("wide");el.querySelector(".tc").outerHTML=rxFace()}
