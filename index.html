@@ -273,7 +273,7 @@ ol.trl{list-style:none;margin:0;padding:0}
 .spl li:first-child{border-top:0}
 .side h2{margin:.9rem 0 .35rem}
 .side h2:first-child{margin-top:0}
-.lawd{margin-top:.9rem;border-top:1px solid var(--line);padding-top:.6rem}
+.lawd{display:none}
 .lawd summary{cursor:pointer;font-size:.75rem;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
 .nxt .btns{display:flex;gap:.4rem;flex-wrap:wrap}
 </style>
@@ -387,7 +387,7 @@ ol.trl{list-style:none;margin:0;padding:0}
       </div>
     </section>
 
-    <aside class="panel p-law side" id="side" aria-label="Side panel">
+    <aside class="panel p-law side" id="side" aria-label="Side panel" hidden>
       <h2 data-i18n="sp.h1"></h2>
       <div id="sched"></div>
       <h2 data-i18n="sp.pvs"></h2>
@@ -402,8 +402,14 @@ ol.trl{list-style:none;margin:0;padding:0}
       <ul class="spl" id="spbk"></ul>
       <h2 data-i18n="sp.log"></h2>
       <ul class="spl" id="splog"></ul>
-      <details class="lawd"><summary data-i18n="l.h"></summary><p class="sub" data-i18n="l.sub"></p><div class="items" id="items"></div><p class="foot" data-i18n="foot"></p></details>
+      
     </aside>
+    <section class="panel p-law" id="lawp" aria-labelledby="h-law">
+      <h2 id="h-law" data-i18n="l.h"></h2>
+      <p class="sub" data-i18n="l.sub"></p>
+      <div class="items" id="items"></div>
+      <p class="foot" data-i18n="foot"></p>
+    </section>
   </div>
 </div>
 
@@ -738,7 +744,7 @@ function confirmId(){
     if(my!==run)return;
     renderSteps(4,4);
     chipKey=flow==="face"?"chip.face":(flow==="manual"?"chip.man":"chip.egk");chip.textContent=t(chipKey);
-    renderBoard();nxRender();empty.hidden=true;chart.hidden=false;go.disabled=false;setStatus("s.done");
+    renderBoard();nxRender();empty.hidden=true;chart.hidden=false;syncRight();go.disabled=false;setStatus("s.done");
   },1000);
 }
 function reject(){
@@ -1037,6 +1043,7 @@ function nxDocsHTML(){
   return h;
 }
 var SCH=[["09:30",0,"sp.r1","b"],["09:45",2,"sp.r2","p"],["10:00",3,"sp.r3","b"],["10:15",5,"sp.r4","b"],["10:30",4,"sp.r5","b"]];
+function syncRight(){var w=!chart.hidden;$("#side").hidden=!w;$("#lawp").hidden=w}
 function spSeg(id,list,key){
   $(id).innerHTML=list.map(function(v){return '<button type="button" data-sp="'+key+'" data-v="'+v+'" aria-pressed="'+(SP[key]===v?"true":"false")+'">'+v+'</button>'}).join("");
 }
@@ -1102,7 +1109,7 @@ function nxRender(){
   document.querySelectorAll("#nxIns button").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-v")===NX.ins?"true":"false")});
 }
 function nxReset(){
-  NX.appr={};NX.prev={};NX.tasks=[{k:"k1",due:0,done:false}];NX.day=0;NX.demo=false;NX.sel=1;NX.pane="doc";NX.pushed={};NX.rc={};SP.log=[];SP.epa.up=false;setStage("1");
+  NX.appr={};NX.prev={};NX.tasks=[{k:"k1",due:0,done:false}];NX.day=0;NX.demo=false;NX.sel=1;NX.pane="doc";NX.pushed={};NX.rc={};SP.log=[];SP.epa.up=false;syncRight();setStage("1");
   $("#nxDx").value="";$("#nxSpec").value="";
 }
 function setStage(st){chart.setAttribute("data-st",st);document.querySelectorAll(".stagebtn").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-s")===st?"true":"false")})}
@@ -1166,7 +1173,7 @@ function openSearch(keep){
   clearTimers();run++;
   confirmBox.hidden=true;chart.hidden=true;empty.hidden=false;stage.setAttribute("data-s","idle");setCapr("capr.ready");
   go.disabled=false;openSet={};setMode("click");
-  flow="manual";renderSteps(0,0);
+  flow="manual";renderSteps(0,0);syncRight();
   if(!keep)setStatus("s.man");
   msearch.hidden=false;msq.value="";renderResults();msq.focus();
 }
