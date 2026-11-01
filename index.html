@@ -1271,7 +1271,7 @@ function nxRender(){
   document.querySelectorAll("#nxIns button").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-v")===NX.ins?"true":"false")});
 }
 function nxReset(){
-  NX.appr={};NX.prev={};NX.tasks=[{k:"k1",due:0,done:false}];NX.day=0;NX.demo=false;NX.sel=1;NX.pane="doc";NX.pushed={};NX.rc={};SP.log=[];NX.lb="";NX.pl="en";MR.taken={};MR.plan=false;TL.w=3;TL.c=1.5;TL.sel=-1;BZ.chk={};BZ.v={d:3,s:4000,m:150};SP.epa.up=false;BTO={};BL.sent=false;BL.chk={};SELA=DI;APL.s=DI-1;setT1("clues");setT0("wait");btRender();syncRight();setStage("1");
+  NX.appr={};NX.prev={};NX.tasks=[{k:"k1",due:0,done:false}];NX.day=0;NX.demo=false;NX.sel=1;NX.pane="doc";NX.pushed={};NX.rc={};SP.log=[];NX.lb="";NX.pl="en";MR.taken={};MR.plan=false;TL.w=1;TL.c=4;TL.sp=24;TL.sel=-1;BZ.chk={};BZ.v={d:3,s:4000,m:150};SP.epa.up=false;BTO={};BL.sent=false;BL.chk={};SELA=DI;APL.s=DI-1;setT1("clues");setT0("wait");btRender();syncRight();setStage("1");
   $("#nxDx").value="";$("#nxSpec").value="";
 }
 function setStage(st){chart.setAttribute("data-st",st);document.querySelectorAll(".stagebtn").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-s")===st?"true":"false")})}
