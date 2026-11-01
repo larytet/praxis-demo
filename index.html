@@ -99,6 +99,24 @@ ul.msr{list-style:none;margin:.5rem 0;padding:0;max-height:15rem;overflow-y:auto
 .msr .ag{color:var(--muted);font-size:.85rem}
 .msr small{display:block;color:var(--muted);font-size:.78rem}
 mark{background:var(--warn-soft);color:inherit;border-radius:2px;padding:0 1px}
+@media (min-width:800px){.tile.wide{grid-column:span 2}}
+.rxtc{align-items:flex-start}
+.rxl{display:block;flex:1;min-width:0}
+.rxr{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:.6rem;align-items:center;padding:.3rem 0;border-top:1px solid var(--line);font-size:.9rem}
+.rxr:first-child{border-top:0}
+.rxr .rn{font-weight:500}
+.rxr .rd{color:var(--muted);font-size:.8rem}
+.rxscroll{overflow-x:auto}
+table.rxt{width:100%;border-collapse:collapse;margin:.4rem 0}
+.rxt th,.rxt td{text-align:start;padding:.4rem .6rem .4rem 0;border-bottom:1px solid var(--line);font-size:.82rem;vertical-align:top}
+.rxt th{font-size:.7rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.ad{margin-top:.7rem}
+.ad b{display:block;font-size:.8rem}
+.adbar{position:relative;height:.65rem;border-radius:.35rem;background:var(--line);margin:.5rem 0;direction:ltr}
+.adbar i{position:absolute;left:0;top:0;bottom:0;border-radius:.35rem;background:var(--ok)}
+.adbar u{position:absolute;top:-.2rem;bottom:-.2rem;width:2px;background:var(--ink);left:80%;text-decoration:none}
+.ad p{margin:.2rem 0;font-size:.8rem;color:var(--muted)}
+.rxsrc{margin:.5rem 0 0;font-size:.75rem;color:var(--muted)}
 /* Arztansicht */
 .empty{display:grid;place-items:center;text-align:center;min-height:24rem;color:var(--muted);padding:1.2rem}
 .empty b{display:block;color:var(--ink);font-weight:500;margin-bottom:.25rem;font-size:1.1rem}
@@ -313,6 +331,8 @@ ev:"Beleg aus dem Gespräch","tr.sub":"Aufzeichnung mit Einwilligung der Patient
 "l5.t":"Datenhaltung","l5.p":"Gespeichert wird ein Vergleichsmuster, kein Foto, nur lokal oder in der EU. Bei Widerruf wird es gelöscht. Die ärztliche Dokumentation wird 10 Jahre aufbewahrt (§ 630f BGB).",
 "l6.t":"Blickdaten","l6.p":"Blickverfolgung kann Rückschlüsse auf Person und Gesundheit erlauben. Nur mit Einwilligung der Nutzerin oder des Nutzers, nur lokal verarbeiten, nicht speichern.",
 "l7.t":"Anbindung an die Praxissoftware","l7.p":"Eine echte Version liest und schreibt über Schnittstellen des Praxisverwaltungssystems (z. B. GDT oder FHIR mit KBV-MIO). In dieser Demo ist nichts angebunden.",
+"t.lab":"Letztes Blutbild","c.lab":"vor 5 Mon.","d.lab":"Blutbild vor 5 Monaten (fiktive Werte). Die Werte sind erst nach dem Öffnen sichtbar.","lab.h1":"Test","lab.h2":"Ergebnis","lab.h3":"Referenz","lab.n1":"Hämoglobin","lab.n2":"Leukozyten","lab.n3":"Thrombozyten","lab.n4":"TSH","lab.n5":"Ferritin","lab.src":"Quelle: Laborbefund in der Akte (Demo).",
+"t.rx":"Rezepte","f.rx":"1 nicht eingelöst","d.rx":"Aktuelle Rezepte mit Dosierung, Abholung in der Apotheke und Regelmäßigkeit der Nachkäufe.","rx.ok":"eingelöst","rx.no":"nicht eingelöst","rx1.s":"1-0-0","rx2.s":"b. B.","rx3.s":"0-0-1 b. B.","rx1.d":"1 Tablette morgens nüchtern","rx2.d":"400 mg bei Bedarf, höchstens 3× täglich","rx3.d":"1 Tablette abends bei Bedarf","rx.v.14d":"vor 14 Tagen","rx.v.3m":"vor 3 Monaten","rx.a1":"nach 1 Tag eingelöst","rx.a2":"noch nicht eingelöst (14 Tage)","rx.a3":"nach 2 Tagen eingelöst","rx.h1":"Medikament","rx.h2":"Dosierung","rx.h3":"Verordnet","rx.h4":"Abholung","rx.ad.h":"Regelmäßigkeit L-Thyroxin","rx.ad.t":"Nachkäufe: 5 von 6 pünktlich (±7 Tage). Abdeckung 88 %, ab 80 % gilt als regelmäßig.","rx.src":"Quelle: ePA-Medikationsliste (Demo), nur mit Einwilligung der Patientin. Abholung ist kein Beweis für die Einnahme.","l8.t":"Rezept- und Abgabedaten","l8.p":"Die Abgabe in der Apotheke zeigt nicht, ob das Medikament eingenommen wird. Abgabedaten (z. B. aus der ePA-Medikationsliste) nur mit Einwilligung der Patientin und nur für die Behandlung nutzen. Die Einordnung bleibt ärztlich.",
 "ms.btn":"Manuell suchen","ms.label":"Manuelle Suche: Anfang von Name, Familienname oder Kindername","ms.ph":"z. B. Hof, Sar, Lina","ms.none":"Keine Treffer. Andere Buchstaben probieren.","ms.min":"Mindestens 2 Buchstaben eingeben.","ms.kids":"Kinder","ms.ageu":" J.","ms.tag":"ohne Beispieldaten","ms.cancel":"Abbrechen","s.man":"Manuelle Suche. Bitte einige Buchstaben eingeben.","s.nodata":"In der Demo enthält nur die Akte Hoffmann-Khalil, Sara Beispieldaten.","step.man.1":"Manuelle Suche nach Name","step.man.2":"Akte ausgewählt","chip.man":"Anmeldung per Suche",
 foot:"Alle Namen, Werte, Zeitangaben und das Transkript sind erfunden. Es wird keine Kamera verwendet und nichts gespeichert."
 },
@@ -350,6 +370,8 @@ ev:"Evidence from the conversation","tr.sub":"Recorded with the patient's consen
 "l5.t":"Data storage","l5.p":"A comparison template is stored, not a photo, only locally or in the EU. It is deleted on withdrawal of consent. Medical documentation is kept for 10 years (§ 630f BGB).",
 "l6.t":"Gaze data","l6.p":"Gaze tracking can reveal personal and health information. Use only with the user's consent, process locally, do not store.",
 "l7.t":"Integration with the practice software","l7.p":"A real version reads and writes through interfaces of the practice management system (e.g. GDT or FHIR with KBV-MIO). Nothing is connected in this demo.",
+"t.lab":"Last blood count","c.lab":"5 mo ago","d.lab":"Blood count 5 months ago (fictional values). The values are only visible after opening.","lab.h1":"Test","lab.h2":"Result","lab.h3":"Reference","lab.n1":"Hemoglobin","lab.n2":"Leukocytes","lab.n3":"Platelets","lab.n4":"TSH","lab.n5":"Ferritin","lab.src":"Source: lab report in the record (demo).",
+"t.rx":"Prescriptions","f.rx":"1 not picked up","d.rx":"Current prescriptions with dosage, pharmacy pick-up and regularity of refills.","rx.ok":"picked up","rx.no":"not picked up","rx1.s":"1-0-0","rx2.s":"PRN","rx3.s":"0-0-1 PRN","rx1.d":"1 tablet in the morning on an empty stomach","rx2.d":"400 mg as needed, at most 3 times a day","rx3.d":"1 tablet in the evening as needed","rx.v.14d":"14 days ago","rx.v.3m":"3 months ago","rx.a1":"picked up after 1 day","rx.a2":"not picked up yet (14 days)","rx.a3":"picked up after 2 days","rx.h1":"Medicine","rx.h2":"Dosage","rx.h3":"Prescribed","rx.h4":"Pick-up","rx.ad.h":"Regularity, L-Thyroxin","rx.ad.t":"Refills: 5 of 6 on time (±7 days). Coverage 88%; 80% or more counts as regular.","rx.src":"Source: ePA medication list (demo), only with the patient's consent. Picking up a medicine does not prove she takes it.","l8.t":"Prescription and dispensing data","l8.p":"Pick-up at the pharmacy does not show whether the medicine is taken. Dispensing data (e.g. from the ePA medication list) only with the patient's consent and only for treatment. The assessment stays medical.",
 "ms.btn":"Search manually","ms.label":"Manual search: start of first name, family name or child's name","ms.ph":"e.g. Hof, Sar, Lina","ms.none":"No matches. Try other letters.","ms.min":"Enter at least 2 letters.","ms.kids":"Children","ms.ageu":" y","ms.tag":"no sample data","ms.cancel":"Cancel","s.man":"Manual search. Please type a few letters.","s.nodata":"In the demo only the record of Hoffmann-Khalil, Sara has sample data.","step.man.1":"Manual search by name","step.man.2":"Record selected","chip.man":"Check-in by search",
 foot:"All names, values, times and the transcript are invented. No camera is used and nothing is stored."
 },
@@ -387,6 +409,8 @@ ev:"Источник из разговора","tr.sub":"Запись с согл
 "l5.t":"Хранение данных","l5.p":"Хранится шаблон для сравнения, а не фото, только локально или в ЕС. При отзыве согласия он удаляется. Медицинская документация хранится 10 лет (§ 630f BGB).",
 "l6.t":"Данные о взгляде","l6.p":"Отслеживание взгляда может раскрывать сведения о человеке и его здоровье. Только с согласия пользователя, обработка локально, без хранения.",
 "l7.t":"Интеграция с программой практики","l7.p":"Реальная версия читает и пишет через интерфейсы практической системы (например, GDT или FHIR с KBV-MIO). В этом демо ничего не подключено.",
+"t.lab":"Последний анализ крови","c.lab":"5 мес. назад","d.lab":"Анализ крови 5 месяцев назад (вымышленные значения). Значения видны только после открытия.","lab.h1":"Анализ","lab.h2":"Результат","lab.h3":"Норма","lab.n1":"Гемоглобин","lab.n2":"Лейкоциты","lab.n3":"Тромбоциты","lab.n4":"ТТГ","lab.n5":"Ферритин","lab.src":"Источник: лабораторный результат в карте (демо).",
+"t.rx":"Рецепты","f.rx":"1 не получен в аптеке","d.rx":"Актуальные рецепты с дозировкой, получением в аптеке и регулярностью повторных покупок.","rx.ok":"получен","rx.no":"не получен","rx1.s":"1-0-0","rx2.s":"по треб.","rx3.s":"0-0-1 по треб.","rx1.d":"1 таблетка утром натощак","rx2.d":"400 мг при необходимости, не более 3 раз в сутки","rx3.d":"1 таблетка вечером при необходимости","rx.v.14d":"14 дней назад","rx.v.3m":"3 месяца назад","rx.a1":"получен через 1 день","rx.a2":"ещё не получен (14 дней)","rx.a3":"получен через 2 дня","rx.h1":"Препарат","rx.h2":"Дозировка","rx.h3":"Назначен","rx.h4":"Получение","rx.ad.h":"Регулярность, L-Thyroxin","rx.ad.t":"Повторные покупки: 5 из 6 вовремя (±7 дней). Покрытие 88 %, от 80 % считается регулярным приёмом.","rx.src":"Источник: список лекарств в ePA (демо), только с согласия пациентки. Получение лекарства не доказывает его приём.","l8.t":"Данные о рецептах и отпуске","l8.p":"Получение в аптеке не показывает, принимает ли пациентка препарат. Данные об отпуске (например, из списка лекарств в ePA) только с согласия пациентки и только для лечения. Оценку даёт врач.",
 "ms.btn":"Искать вручную","ms.label":"Ручной поиск: начало имени, фамилии или имени ребёнка","ms.ph":"напр. Hof, Sar, Lina","ms.none":"Ничего не найдено. Попробуйте другие буквы.","ms.min":"Введите не менее 2 букв.","ms.kids":"Дети","ms.ageu":" л.","ms.tag":"без демо-данных","ms.cancel":"Отмена","s.man":"Ручной поиск. Введите несколько букв.","s.nodata":"В демо только карта Hoffmann-Khalil, Sara содержит данные.","step.man.1":"Ручной поиск по имени","step.man.2":"Карта выбрана","chip.man":"Регистрация через поиск",
 foot:"Все имена, значения, время и расшифровка вымышлены. Камера не используется, ничего не сохраняется."
 },
@@ -424,6 +448,8 @@ ev:"הוכחה מהשיחה","tr.sub":"הוקלט בהסכמת המטופלת ·
 "l5.t":"אחסון נתונים","l5.p":"נשמרת תבנית להשוואה ולא תמונה, רק מקומית או באיחוד האירופי. היא נמחקת עם ביטול ההסכמה. התיעוד הרפואי נשמר 10 שנים (§ 630f BGB).",
 "l6.t":"נתוני מבט","l6.p":"מעקב מבט עשוי לחשוף מידע אישי ובריאותי. רק בהסכמת המשתמש, עיבוד מקומי, ללא שמירה.",
 "l7.t":"חיבור לתוכנת המרפאה","l7.p":"גרסה אמיתית קוראת וכותבת דרך ממשקים של מערכת ניהול המרפאה (למשל GDT או FHIR עם KBV-MIO). בהדגמה זו דבר אינו מחובר.",
+"t.lab":"בדיקת דם אחרונה","c.lab":"לפני 5 חודשים","d.lab":"ספירת דם לפני 5 חודשים (ערכים בדויים). הערכים גלויים רק לאחר הפתיחה.","lab.h1":"בדיקה","lab.h2":"תוצאה","lab.h3":"טווח ייחוס","lab.n1":"המוגלובין","lab.n2":"לויקוציטים","lab.n3":"טסיות דם","lab.n4":"TSH","lab.n5":"פריטין","lab.src":"מקור: תוצאות מעבדה בתיק (הדגמה).",
+"t.rx":"מרשמים","f.rx":"1 לא נאסף","d.rx":"מרשמים עדכניים עם מינון, איסוף בבית המרקחת וסדירות הרכישות החוזרות.","rx.ok":"נאסף","rx.no":"לא נאסף","rx1.s":"1-0-0","rx2.s":"לפי צורך","rx3.s":"0-0-1 לפי צורך","rx1.d":"טבליה אחת בבוקר על קיבה ריקה","rx2.d":"400 מ״ג לפי הצורך, עד 3 פעמים ביום","rx3.d":"טבליה אחת בערב לפי הצורך","rx.v.14d":"לפני 14 ימים","rx.v.3m":"לפני 3 חודשים","rx.a1":"נאסף אחרי יום","rx.a2":"עדיין לא נאסף (14 ימים)","rx.a3":"נאסף אחרי יומיים","rx.h1":"תרופה","rx.h2":"מינון","rx.h3":"נרשם","rx.h4":"איסוף","rx.ad.h":"סדירות, L-Thyroxin","rx.ad.t":"רכישות חוזרות: 5 מתוך 6 בזמן (±7 ימים). כיסוי 88%, מ-80% נחשב סדיר.","rx.src":"מקור: רשימת התרופות ב-ePA (הדגמה), רק בהסכמת המטופלת. איסוף תרופה אינו הוכחה לנטילתה.","l8.t":"נתוני מרשמים וניפוק","l8.p":"איסוף בבית המרקחת אינו מראה אם התרופה נלקחת. נתוני ניפוק (למשל מרשימת התרופות ב-ePA) רק בהסכמת המטופלת ורק לצורך הטיפול. ההערכה נשארת רפואית.",
 "ms.btn":"חיפוש ידני","ms.label":"חיפוש ידני: תחילת שם פרטי, שם משפחה או שם ילד","ms.ph":"למשל Hof, Sar, Lina","ms.none":"אין תוצאות. נסו אותיות אחרות.","ms.min":"הקלידו לפחות 2 אותיות.","ms.kids":"ילדים","ms.ageu":" שנים","ms.tag":"ללא נתוני דוגמה","ms.cancel":"ביטול","s.man":"חיפוש ידני. הקלידו כמה אותיות.","s.nodata":"בהדגמה רק התיק של Hoffmann-Khalil, Sara כולל נתוני דוגמה.","step.man.1":"חיפוש ידני לפי שם","step.man.2":"התיק נבחר","chip.man":"צ'ק-אין בחיפוש",
 foot:"כל השמות, הערכים, הזמנים והתמלול בדויים. לא נעשה שימוש במצלמה ושום דבר לא נשמר."
 },
@@ -461,6 +487,8 @@ ev:"Görüşmeden kanıt","tr.sub":"Hastanın onayıyla kaydedildi · doktor tar
 "l5.t":"Veri saklama","l5.p":"Fotoğraf değil, karşılaştırma şablonu saklanır; yalnızca yerel olarak veya AB içinde. Rıza geri alınınca silinir. Tıbbi dokümantasyon 10 yıl saklanır (§ 630f BGB).",
 "l6.t":"Bakış verileri","l6.p":"Bakış takibi kişi ve sağlık hakkında bilgi ortaya çıkarabilir. Yalnızca kullanıcının rızasıyla, yerel işlenerek, saklanmadan kullanın.",
 "l7.t":"Muayenehane yazılımına bağlantı","l7.p":"Gerçek sürüm, muayenehane yönetim sisteminin arayüzleri üzerinden okur ve yazar (örn. GDT veya KBV-MIO ile FHIR). Bu demoda hiçbir şey bağlı değil.",
+"t.lab":"Son kan sayımı","c.lab":"5 ay önce","d.lab":"5 ay önceki kan sayımı (kurgusal değerler). Değerler yalnızca açıldıktan sonra görünür.","lab.h1":"Test","lab.h2":"Sonuç","lab.h3":"Referans","lab.n1":"Hemoglobin","lab.n2":"Lökosit","lab.n3":"Trombosit","lab.n4":"TSH","lab.n5":"Ferritin","lab.src":"Kaynak: dosyadaki laboratuvar sonucu (demo).",
+"t.rx":"Reçeteler","f.rx":"1 reçete alınmadı","d.rx":"Güncel reçeteler: doz, eczaneden alım ve yenileme düzeni.","rx.ok":"alındı","rx.no":"alınmadı","rx1.s":"1-0-0","rx2.s":"gerekirse","rx3.s":"0-0-1 gerekirse","rx1.d":"Sabah aç karnına 1 tablet","rx2.d":"Gerektiğinde 400 mg, günde en fazla 3 kez","rx3.d":"Gerektiğinde akşam 1 tablet","rx.v.14d":"14 gün önce","rx.v.3m":"3 ay önce","rx.a1":"1 gün sonra alındı","rx.a2":"henüz alınmadı (14 gün)","rx.a3":"2 gün sonra alındı","rx.h1":"İlaç","rx.h2":"Doz","rx.h3":"Yazıldı","rx.h4":"Alım","rx.ad.h":"Düzenlilik, L-Thyroxin","rx.ad.t":"Yenilemeler: 6 üzerinden 5'i zamanında (±7 gün). Kapsama %88, %80 ve üzeri düzenli sayılır.","rx.src":"Kaynak: ePA ilaç listesi (demo), yalnızca hastanın onayıyla. İlacı almak, kullandığını kanıtlamaz.","l8.t":"Reçete ve teslim verileri","l8.p":"Eczaneden alım, ilacın kullanılıp kullanılmadığını göstermez. Teslim verileri (örn. ePA ilaç listesinden) yalnızca hastanın onayıyla ve yalnızca tedavi için kullanılır. Değerlendirme hekime aittir.",
 "ms.btn":"Elle ara","ms.label":"Elle arama: ad, soyad veya çocuk adının ilk harfleri","ms.ph":"örn. Hof, Sar, Lina","ms.none":"Sonuç yok. Başka harfler deneyin.","ms.min":"En az 2 harf girin.","ms.kids":"Çocuklar","ms.ageu":" yaş","ms.tag":"örnek veri yok","ms.cancel":"İptal","s.man":"Elle arama. Lütfen birkaç harf yazın.","s.nodata":"Demoda yalnızca Hoffmann-Khalil, Sara dosyasında örnek veri var.","step.man.1":"Ada göre elle arama","step.man.2":"Dosya seçildi","chip.man":"Aramayla giriş",
 foot:"Tüm adlar, değerler, saatler ve döküm uydurmadır. Kamera kullanılmaz ve hiçbir şey saklanmaz."
 }};
@@ -478,8 +506,10 @@ var TR=[
 ];
 var TILES=[
  {k:"pulse",f:"warn",ev:[6],range:true,arrow:true},
+ {k:"rx",f:"warn",fk:"f.rx"},
  {k:"temp",f:"ok"},
  {k:"bp",f:"ok"},
+ {k:"lab"},
  {k:"kids",ev:[0,1]},
  {k:"blood",ev:[4,5]},
  {k:"origin",ev:[2,3]}
@@ -501,7 +531,7 @@ function applyLang(){
   paintSteps();statusEl.textContent=stKey?t(stKey):"";capr.textContent=t(caprKey);chip.textContent=t(chipKey);
   modeHint.textContent=t("hint."+mode);$("#gzlab").textContent=t("gz.dwell");
   var it=$("#items");it.innerHTML="";
-  for(var i=1;i<=7;i++){var d=document.createElement("div");d.className="it";d.innerHTML="<b>"+t("l"+i+".t")+"</b><p>"+t("l"+i+".p")+"</p>";it.appendChild(d)}
+  for(var i=1;i<=8;i++){var d=document.createElement("div");d.className="it";d.innerHTML="<b>"+t("l"+i+".t")+"</b><p>"+t("l"+i+".p")+"</p>";it.appendChild(d)}
   if(!chart.hidden)renderBoard();
 }
 
@@ -561,6 +591,8 @@ function rangeHTML(){
   return '<div class="range"><div class="rt"><span>'+t("r.l")+'</span><span>'+t("r.r")+'</span></div><div class="track"><div class="band" style="left:25%;width:50%"></div><div class="mk prev" style="left:40%"></div><div class="mk now" style="left:55%"></div></div><div class="rl"><span><i style="background:var(--muted)"></i>'+t("r.prev")+'</span><span><i style="background:var(--warn)"></i>'+t("r.now")+'</span><span><i style="background:var(--ok-soft);border:1px solid var(--ok)"></i>'+t("r.band")+'</span></div></div>';
 }
 function detailHTML(def){
+  if(def.k==="rx")return rxDetail();
+  if(def.k==="lab")return labDetail();
   var h='<p class="dt">'+t("d."+def.k)+"</p>";
   if(def.range)h+=rangeHTML();
   if(def.ev){
@@ -573,15 +605,39 @@ function detailHTML(def){
   }
   return h;
 }
+var RX=[
+ {n:"L-Thyroxin 50 µg",s:"rx1.s",d:"rx1.d",v:"rx.v.14d",a:"rx.a1",ok:true},
+ {n:"Ibuprofen 400 mg",s:"rx2.s",d:"rx2.d",v:"rx.v.14d",a:"rx.a2",ok:false},
+ {n:"Cetirizin 10 mg",s:"rx3.s",d:"rx3.d",v:"rx.v.3m",a:"rx.a3",ok:true}
+];
+var LAB=[["lab.n1","13.1","g/dl",12,16],["lab.n2","6.4","/nl",4,10],["lab.n3","245","/nl",150,400],["lab.n4","2.1","mU/l",0.4,4],["lab.n5","48","µg/l",15,150]];
+function fmtn(s){return (lang==="de"||lang==="ru"||lang==="tr")?String(s).replace(".",","):String(s)}
+function labDetail(){
+  var h='<p class="dt">'+t("d.lab")+'</p><div class="rxscroll"><table class="rxt"><thead><tr><th>'+t("lab.h1")+'</th><th>'+t("lab.h2")+'</th><th>'+t("lab.h3")+'</th><th></th></tr></thead><tbody>';
+  LAB.forEach(function(r){h+='<tr><td>'+t(r[0])+'</td><td><bdi>'+fmtn(r[1])+' '+r[2]+'</bdi></td><td><bdi>'+fmtn(r[3])+' – '+fmtn(r[4])+'</bdi></td><td><span class="pill ok">'+t("f.ok")+'</span></td></tr>'});
+  return h+'</tbody></table></div><p class="rxsrc">'+t("lab.src")+'</p>';
+}
+function rxFace(){
+  var h='<span class="tc rxtc"><span class="rxl">';
+  RX.forEach(function(r){h+='<span class="rxr"><span class="rn">'+r.n+'</span><span class="rd">'+t(r.s)+'</span><span class="pill '+(r.ok?"ok":"warn")+'">'+t(r.ok?"rx.ok":"rx.no")+'</span></span>'});
+  return h+'</span>'+CHEV+'</span>';
+}
+function rxDetail(){
+  var h='<p class="dt">'+t("d.rx")+'</p><div class="rxscroll"><table class="rxt"><thead><tr><th>'+t("rx.h1")+'</th><th>'+t("rx.h2")+'</th><th>'+t("rx.h3")+'</th><th>'+t("rx.h4")+'</th></tr></thead><tbody>';
+  RX.forEach(function(r){h+='<tr><td>'+r.n+'</td><td>'+t(r.d)+'</td><td>'+t(r.v)+'</td><td>'+t(r.a)+'</td></tr>'});
+  h+='</tbody></table></div><div class="ad"><b>'+t("rx.ad.h")+'</b><div class="adbar"><i style="width:88%"></i><u></u></div><p>'+t("rx.ad.t")+'</p></div><p class="rxsrc">'+t("rx.src")+'</p>';
+  return h;
+}
 function renderBoard(){
   tilesEl.innerHTML="";
   TILES.forEach(function(def){
     var el=document.createElement("div");
     el.className="tile"+(def.f==="warn"?" warn":"")+(openSet[def.k]?" open":"");
     el.setAttribute("data-k",def.k);
-    var txt=(def.k==="origin");
-    var flag=def.f?'<span class="pill '+def.f+'">'+t("f."+def.f)+"</span>":"";
+    var txt=(def.k==="origin"||def.k==="lab");
+    var flag=def.f?'<span class="pill '+def.f+'">'+t(def.fk||("f."+def.f))+"</span>":"";
     el.innerHTML='<button class="tbtn" type="button" aria-expanded="'+(openSet[def.k]?"true":"false")+'" aria-controls="d-'+def.k+'"><span class="tl">'+t("t."+def.k)+'</span><span class="tc"><bdi class="v'+(txt?" txt":"")+'">'+t("c."+def.k)+"</bdi>"+CHEV+'</span><span class="tf">'+flag+'</span></button><div class="td" id="d-'+def.k+'"><div class="tdi"><div>'+detailHTML(def)+"</div></div></div>";
+    if(def.k==="rx"){el.classList.add("wide");el.querySelector(".tc").outerHTML=rxFace()}
     tilesEl.appendChild(el);
   });
 }
@@ -650,7 +706,7 @@ function setMode(m){
   if(m==="tour")runTour();
 }
 function runTour(){
-  var keys=["pulse","kids","blood","origin"],i=0,my=run;
+  var keys=["pulse","rx","kids","blood","origin"],i=0,my=run;
   Object.keys(openSet).forEach(function(k){setOpen(k,false)});
   function step(){
     if(mode!=="tour"||my!==run)return;
