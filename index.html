@@ -453,13 +453,16 @@ body.pn{padding-top:2.4rem}
 @keyframes wvsw{0%,100%{transform:translateX(-1.5px) rotate(-.6deg)}50%{transform:translateX(1.5px) rotate(.6deg)}}
 @keyframes wvb{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
 @media (prefers-reduced-motion:reduce){.wv-live .wvp,.wv-live .wvey,.wvd{animation:none}}
-#sos{position:fixed;left:1rem;bottom:1rem;z-index:190;display:flex;gap:.4rem;align-items:center;flex-wrap:wrap;max-width:min(30rem,calc(100vw - 2rem))}
-[dir="rtl"] #sos{left:auto;right:1rem}
-#sosBtn{font:700 .8rem var(--ui);background:#b3261e;color:#fff;border:2px solid #fff;border-radius:999px;padding:.4rem .9rem;cursor:pointer;box-shadow:0 3px 14px rgba(0,0,0,.45)}
-#sos[data-s="arm"] #sosBtn{animation:sosp 1s ease-in-out infinite}
-#sos[data-s="dial"] #sosBtn{background:#1e7a3c;cursor:default}
-@keyframes sosp{50%{box-shadow:0 0 0 6px rgba(179,38,30,.35)}}
-#sosX{font:600 .74rem var(--ui);background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:.3rem .7rem;cursor:pointer}
+#sos{position:fixed;inset:0;z-index:190;display:flex;align-items:flex-end;justify-content:flex-end;padding:1rem;pointer-events:none;gap:.5rem;flex-wrap:wrap;align-content:flex-end}
+[dir="rtl"] #sos{justify-content:flex-start}
+#sos>*{pointer-events:auto}
+#sos[data-s="arm"],#sos[data-s="dial"]{align-items:center;justify-content:center;align-content:center;flex-direction:column;background:rgba(0,0,0,.35)}
+#sos[data-s="arm"]>*,#sos[data-s="dial"]>*{pointer-events:auto}
+#sosBtn{font:700 .72rem var(--ui);background:#b3261e;color:#fff;border:2px solid #fff;border-radius:999px;padding:.3rem .7rem;cursor:pointer;box-shadow:0 3px 14px rgba(0,0,0,.45)}
+#sos[data-s="arm"] #sosBtn{font-size:1.4rem;padding:1.2rem 2.4rem;max-width:min(34rem,90vw);animation:sosp 1s ease-in-out infinite}
+#sos[data-s="dial"] #sosBtn{background:#1e7a3c;cursor:default;font-size:1.2rem;padding:1rem 2rem;max-width:min(34rem,90vw)}
+@keyframes sosp{50%{box-shadow:0 0 0 10px rgba(179,38,30,.4)}}
+#sosX{font:600 .8rem var(--ui);background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:.4rem .9rem;cursor:pointer}
 @media (prefers-reduced-motion:reduce){#sos[data-s="arm"] #sosBtn{animation:none}}
 </style>
 
@@ -1465,12 +1468,12 @@ var SOS={s:"idle",to:null,iv:null,t0:0};
 function sosTime(){var d=Math.floor((Date.now()-SOS.t0)/1000);return ("0"+Math.floor(d/60)).slice(-2)+":"+("0"+d%60).slice(-2)}
 function sosRender(){
   var b=$("#sosBtn"),x=$("#sosX");$("#sos").setAttribute("data-s",SOS.s);
-  b.textContent="☎ "+(SOS.s==="idle"?t("sos.btn"):(SOS.s==="arm"?t("sos.arm"):t("sos.conn")+" "+sosTime()));
+  b.setAttribute("aria-label",t("sos.btn"));b.textContent="☎ "+(SOS.s==="idle"?"112":(SOS.s==="arm"?t("sos.arm"):t("sos.conn")+" "+sosTime()));
   x.hidden=SOS.s==="idle";x.textContent=t(SOS.s==="arm"?"sos.cancel":"sos.end");
 }
 function sosSet(st){
   clearTimeout(SOS.to);clearInterval(SOS.iv);SOS.s=st;
-  if(st==="arm")SOS.to=setTimeout(function(){sosSet("idle")},8000);
+  if(st==="arm")SOS.to=setTimeout(function(){sosSet("idle")},6000);
   if(st==="dial"){SOS.t0=Date.now();SOS.iv=setInterval(sosRender,1000)}
   sosRender();
 }
