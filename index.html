@@ -86,6 +86,19 @@ ol.steps li.done .d{background:var(--ok);border-color:var(--ok);color:var(--card
 .confirm p{margin:0 0 .65rem;font-size:.9rem}
 .confirm[hidden]{display:none}
 .status{margin:.65rem 0 0;font-size:.85rem;color:var(--muted);min-height:1.3rem}
+.msearch{margin-top:.8rem;border:1px solid var(--accent);background:var(--accent-soft);border-radius:.65rem;padding:.8rem .9rem}
+.msearch[hidden]{display:none}
+.msearch label{display:block;font-size:.85rem;margin-bottom:.4rem}
+.msearch input{width:100%;font:500 1rem var(--ui);padding:.55rem .7rem;border-radius:.5rem;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.msearch input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+ul.msr{list-style:none;margin:.5rem 0;padding:0;max-height:15rem;overflow-y:auto}
+.msr li.msn{padding:.45rem .2rem;font-size:.85rem;color:var(--muted)}
+.msr button{display:block;width:100%;text-align:start;background:var(--card);border:1px solid var(--line);border-radius:.5rem;padding:.5rem .7rem;margin-bottom:.35rem;color:var(--ink);font:inherit;cursor:pointer}
+.msr button:hover,.msr button:focus-visible{border-color:var(--accent);outline:none}
+.msr .nm{font-weight:600}
+.msr .ag{color:var(--muted);font-size:.85rem}
+.msr small{display:block;color:var(--muted);font-size:.78rem}
+mark{background:var(--warn-soft);color:inherit;border-radius:2px;padding:0 1px}
 /* Arztansicht */
 .empty{display:grid;place-items:center;text-align:center;min-height:24rem;color:var(--muted);padding:1.2rem}
 .empty b{display:block;color:var(--ink);font-weight:500;margin-bottom:.25rem;font-size:1.1rem}
@@ -205,11 +218,18 @@ ol.trl{list-style:none;margin:0;padding:0}
       <div class="btns">
         <button class="btn pri" id="go" type="button" data-i18n="go"></button>
         <button class="btn" id="reset" type="button" data-i18n="reset"></button>
+        <button class="btn" id="msBtn" type="button" data-i18n="ms.btn"></button>
       </div>
       <ol class="steps" id="steps"></ol>
       <div class="confirm" id="confirm" hidden>
         <p data-i18n-html="confirm"></p>
         <div class="btns"><button class="btn pri" id="yes" type="button" data-i18n="yes"></button><button class="btn" id="no" type="button" data-i18n="no"></button></div>
+      </div>
+      <div class="msearch" id="msearch" hidden>
+        <label for="msq" data-i18n="ms.label"></label>
+        <input id="msq" type="search" autocomplete="off" data-i18n-ph="ms.ph">
+        <ul class="msr" id="msr"></ul>
+        <div class="btns"><button class="btn" id="msCancel" type="button" data-i18n="ms.cancel"></button></div>
       </div>
       <p class="status" id="status" role="status" aria-live="polite"></p>
     </section>
@@ -293,6 +313,7 @@ ev:"Beleg aus dem Gespräch","tr.sub":"Aufzeichnung mit Einwilligung der Patient
 "l5.t":"Datenhaltung","l5.p":"Gespeichert wird ein Vergleichsmuster, kein Foto, nur lokal oder in der EU. Bei Widerruf wird es gelöscht. Die ärztliche Dokumentation wird 10 Jahre aufbewahrt (§ 630f BGB).",
 "l6.t":"Blickdaten","l6.p":"Blickverfolgung kann Rückschlüsse auf Person und Gesundheit erlauben. Nur mit Einwilligung der Nutzerin oder des Nutzers, nur lokal verarbeiten, nicht speichern.",
 "l7.t":"Anbindung an die Praxissoftware","l7.p":"Eine echte Version liest und schreibt über Schnittstellen des Praxisverwaltungssystems (z. B. GDT oder FHIR mit KBV-MIO). In dieser Demo ist nichts angebunden.",
+"ms.btn":"Manuell suchen","ms.label":"Manuelle Suche: Anfang von Name, Familienname oder Kindername","ms.ph":"z. B. Hof, Sar, Lina","ms.none":"Keine Treffer. Andere Buchstaben probieren.","ms.min":"Mindestens 2 Buchstaben eingeben.","ms.kids":"Kinder","ms.ageu":" J.","ms.tag":"ohne Beispieldaten","ms.cancel":"Abbrechen","s.man":"Manuelle Suche. Bitte einige Buchstaben eingeben.","s.nodata":"In der Demo enthält nur die Akte Hoffmann-Khalil, Sara Beispieldaten.","step.man.1":"Manuelle Suche nach Name","step.man.2":"Akte ausgewählt","chip.man":"Anmeldung per Suche",
 foot:"Alle Namen, Werte, Zeitangaben und das Transkript sind erfunden. Es wird keine Kamera verwendet und nichts gespeichert."
 },
 en:{
@@ -329,6 +350,7 @@ ev:"Evidence from the conversation","tr.sub":"Recorded with the patient's consen
 "l5.t":"Data storage","l5.p":"A comparison template is stored, not a photo, only locally or in the EU. It is deleted on withdrawal of consent. Medical documentation is kept for 10 years (§ 630f BGB).",
 "l6.t":"Gaze data","l6.p":"Gaze tracking can reveal personal and health information. Use only with the user's consent, process locally, do not store.",
 "l7.t":"Integration with the practice software","l7.p":"A real version reads and writes through interfaces of the practice management system (e.g. GDT or FHIR with KBV-MIO). Nothing is connected in this demo.",
+"ms.btn":"Search manually","ms.label":"Manual search: start of first name, family name or child's name","ms.ph":"e.g. Hof, Sar, Lina","ms.none":"No matches. Try other letters.","ms.min":"Enter at least 2 letters.","ms.kids":"Children","ms.ageu":" y","ms.tag":"no sample data","ms.cancel":"Cancel","s.man":"Manual search. Please type a few letters.","s.nodata":"In the demo only the record of Hoffmann-Khalil, Sara has sample data.","step.man.1":"Manual search by name","step.man.2":"Record selected","chip.man":"Check-in by search",
 foot:"All names, values, times and the transcript are invented. No camera is used and nothing is stored."
 },
 ru:{
@@ -365,6 +387,7 @@ ev:"Источник из разговора","tr.sub":"Запись с согл
 "l5.t":"Хранение данных","l5.p":"Хранится шаблон для сравнения, а не фото, только локально или в ЕС. При отзыве согласия он удаляется. Медицинская документация хранится 10 лет (§ 630f BGB).",
 "l6.t":"Данные о взгляде","l6.p":"Отслеживание взгляда может раскрывать сведения о человеке и его здоровье. Только с согласия пользователя, обработка локально, без хранения.",
 "l7.t":"Интеграция с программой практики","l7.p":"Реальная версия читает и пишет через интерфейсы практической системы (например, GDT или FHIR с KBV-MIO). В этом демо ничего не подключено.",
+"ms.btn":"Искать вручную","ms.label":"Ручной поиск: начало имени, фамилии или имени ребёнка","ms.ph":"напр. Hof, Sar, Lina","ms.none":"Ничего не найдено. Попробуйте другие буквы.","ms.min":"Введите не менее 2 букв.","ms.kids":"Дети","ms.ageu":" л.","ms.tag":"без демо-данных","ms.cancel":"Отмена","s.man":"Ручной поиск. Введите несколько букв.","s.nodata":"В демо только карта Hoffmann-Khalil, Sara содержит данные.","step.man.1":"Ручной поиск по имени","step.man.2":"Карта выбрана","chip.man":"Регистрация через поиск",
 foot:"Все имена, значения, время и расшифровка вымышлены. Камера не используется, ничего не сохраняется."
 },
 he:{
@@ -401,6 +424,7 @@ ev:"הוכחה מהשיחה","tr.sub":"הוקלט בהסכמת המטופלת ·
 "l5.t":"אחסון נתונים","l5.p":"נשמרת תבנית להשוואה ולא תמונה, רק מקומית או באיחוד האירופי. היא נמחקת עם ביטול ההסכמה. התיעוד הרפואי נשמר 10 שנים (§ 630f BGB).",
 "l6.t":"נתוני מבט","l6.p":"מעקב מבט עשוי לחשוף מידע אישי ובריאותי. רק בהסכמת המשתמש, עיבוד מקומי, ללא שמירה.",
 "l7.t":"חיבור לתוכנת המרפאה","l7.p":"גרסה אמיתית קוראת וכותבת דרך ממשקים של מערכת ניהול המרפאה (למשל GDT או FHIR עם KBV-MIO). בהדגמה זו דבר אינו מחובר.",
+"ms.btn":"חיפוש ידני","ms.label":"חיפוש ידני: תחילת שם פרטי, שם משפחה או שם ילד","ms.ph":"למשל Hof, Sar, Lina","ms.none":"אין תוצאות. נסו אותיות אחרות.","ms.min":"הקלידו לפחות 2 אותיות.","ms.kids":"ילדים","ms.ageu":" שנים","ms.tag":"ללא נתוני דוגמה","ms.cancel":"ביטול","s.man":"חיפוש ידני. הקלידו כמה אותיות.","s.nodata":"בהדגמה רק התיק של Hoffmann-Khalil, Sara כולל נתוני דוגמה.","step.man.1":"חיפוש ידני לפי שם","step.man.2":"התיק נבחר","chip.man":"צ'ק-אין בחיפוש",
 foot:"כל השמות, הערכים, הזמנים והתמלול בדויים. לא נעשה שימוש במצלמה ושום דבר לא נשמר."
 },
 tr:{
@@ -437,6 +461,7 @@ ev:"Görüşmeden kanıt","tr.sub":"Hastanın onayıyla kaydedildi · doktor tar
 "l5.t":"Veri saklama","l5.p":"Fotoğraf değil, karşılaştırma şablonu saklanır; yalnızca yerel olarak veya AB içinde. Rıza geri alınınca silinir. Tıbbi dokümantasyon 10 yıl saklanır (§ 630f BGB).",
 "l6.t":"Bakış verileri","l6.p":"Bakış takibi kişi ve sağlık hakkında bilgi ortaya çıkarabilir. Yalnızca kullanıcının rızasıyla, yerel işlenerek, saklanmadan kullanın.",
 "l7.t":"Muayenehane yazılımına bağlantı","l7.p":"Gerçek sürüm, muayenehane yönetim sisteminin arayüzleri üzerinden okur ve yazar (örn. GDT veya KBV-MIO ile FHIR). Bu demoda hiçbir şey bağlı değil.",
+"ms.btn":"Elle ara","ms.label":"Elle arama: ad, soyad veya çocuk adının ilk harfleri","ms.ph":"örn. Hof, Sar, Lina","ms.none":"Sonuç yok. Başka harfler deneyin.","ms.min":"En az 2 harf girin.","ms.kids":"Çocuklar","ms.ageu":" yaş","ms.tag":"örnek veri yok","ms.cancel":"İptal","s.man":"Elle arama. Lütfen birkaç harf yazın.","s.nodata":"Demoda yalnızca Hoffmann-Khalil, Sara dosyasında örnek veri var.","step.man.1":"Ada göre elle arama","step.man.2":"Dosya seçildi","chip.man":"Aramayla giriş",
 foot:"Tüm adlar, değerler, saatler ve döküm uydurmadır. Kamera kullanılmaz ve hiçbir şey saklanmaz."
 }};
 var lang="de";
@@ -445,7 +470,7 @@ function t(k){return (L[lang]&&L[lang][k])||L.de[k]||k}
 
 var stage=$("#stage"),steps=$("#steps"),confirmBox=$("#confirm"),statusEl=$("#status"),capr=$("#capr");
 var chart=$("#chart"),empty=$("#empty"),go=$("#go"),tg=$("#tgConsent"),chip=$("#chipId"),tilesEl=$("#tiles"),modeHint=$("#modeHint");
-var FL={face:["step.face.1","step.face.2","step.face.3","step.face.4"],egk:["step.egk.1","step.egk.2","step.egk.3","step.egk.4"]};
+var FL={face:["step.face.1","step.face.2","step.face.3","step.face.4"],egk:["step.egk.1","step.egk.2","step.egk.3","step.egk.4"],manual:["step.man.1","step.man.2","step.face.3","step.face.4"]};
 var flow="face",run=0,timers=[],stepA=-1,stepD=0,stKey="",caprKey="capr.ready",chipKey="chip.face",mode="click",openSet={};
 var TR=[
  {t:"09:42:10",w:"who.doc",k:""},{t:"09:42:15",w:"who.pat",k:"kids"},{t:"09:43:02",w:"who.doc",k:""},{t:"09:43:09",w:"who.pat",k:"origin"},
@@ -471,6 +496,8 @@ function applyLang(){
   document.querySelectorAll("#lang button").forEach(function(b){var on=b.getAttribute("data-lang")===lang;b.setAttribute("role","option");b.setAttribute("aria-selected",on?"true":"false");b.removeAttribute("aria-pressed");if(on){$("#langCur .lf").innerHTML=b.querySelector("svg").outerHTML;$("#langCur .ll").textContent=b.querySelector("span").textContent}});
   document.querySelectorAll("[data-i18n]").forEach(function(el){el.textContent=t(el.getAttribute("data-i18n"))});
   document.querySelectorAll("[data-i18n-html]").forEach(function(el){el.innerHTML=t(el.getAttribute("data-i18n-html"))});
+  document.querySelectorAll("[data-i18n-ph]").forEach(function(el){el.placeholder=t(el.getAttribute("data-i18n-ph"))});
+  if(typeof msearch!=="undefined"&&msearch&&!msearch.hidden)renderResults();
   paintSteps();statusEl.textContent=stKey?t(stKey):"";capr.textContent=t(caprKey);chip.textContent=t(chipKey);
   modeHint.textContent=t("hint."+mode);$("#gzlab").textContent=t("gz.dwell");
   var it=$("#items");it.innerHTML="";
@@ -494,7 +521,7 @@ function setCapr(k){caprKey=k;capr.textContent=t(k)}
 function idle(){
   clearTimers();run++;
   stage.setAttribute("data-s","idle");setCapr("capr.ready");
-  confirmBox.hidden=true;chart.hidden=true;empty.hidden=false;go.disabled=false;
+  confirmBox.hidden=true;chart.hidden=true;empty.hidden=false;go.disabled=false;msearch.hidden=true;
   openSet={};setMode("click");
   flow=tg.getAttribute("aria-checked")==="true"?"face":"egk";
   renderSteps(-1,0);setStatus("");
@@ -502,7 +529,7 @@ function idle(){
 function start(){
   clearTimers();var my=++run;
   flow=tg.getAttribute("aria-checked")==="true"?"face":"egk";
-  go.disabled=true;chart.hidden=true;empty.hidden=false;confirmBox.hidden=true;openSet={};setMode("click");
+  go.disabled=true;chart.hidden=true;empty.hidden=false;confirmBox.hidden=true;msearch.hidden=true;openSet={};setMode("click");
   if(flow==="face"){
     stage.setAttribute("data-s","scan");setCapr("capr.on");
     renderSteps(0,0);setStatus("s.search");
@@ -516,17 +543,17 @@ function start(){
   }
 }
 function confirmId(){
-  var my=run;confirmBox.hidden=true;renderSteps(3,3);setStatus("s.reading");
+  var my=run;confirmBox.hidden=true;msearch.hidden=true;renderSteps(3,3);setStatus("s.reading");
   later(function(){
     if(my!==run)return;
     renderSteps(4,4);
-    chipKey=flow==="face"?"chip.face":"chip.egk";chip.textContent=t(chipKey);
+    chipKey=flow==="face"?"chip.face":(flow==="manual"?"chip.man":"chip.egk");chip.textContent=t(chipKey);
     renderBoard();empty.hidden=true;chart.hidden=false;go.disabled=false;setStatus("s.done");
   },1000);
 }
 function reject(){
   clearTimers();run++;confirmBox.hidden=true;stage.setAttribute("data-s","idle");setCapr("capr.ready");
-  renderSteps(-1,0);go.disabled=false;setStatus("s.rej");
+  go.disabled=false;openSearch(true);setStatus("s.rej");
 }
 
 /* --- Hinweis-Kacheln --- */
@@ -670,6 +697,62 @@ document.addEventListener("keydown",function(e){
   else if(e.key==="ArrowDown"){e.preventDefault();bs[(i+1)%bs.length].focus()}
   else if(e.key==="ArrowUp"){e.preventDefault();bs[(i+bs.length-1)%bs.length].focus()}
 });
+var msearch=$("#msearch"),msq=$("#msq"),msr=$("#msr");
+var PAT=[
+ {id:0,last:"Hoffmann-Khalil",first:"Sara",age:34,kids:["Lina","Elias"],demo:true},
+ {id:1,last:"Hoffmann",first:"Peter",age:63,kids:["Lena","Paul"]},
+ {id:2,last:"Becker",first:"Thomas",age:58,kids:["Jonas"]},
+ {id:3,last:"Yılmaz",first:"Ayşe",age:41,kids:["Elif","Mert"]},
+ {id:4,last:"Schneider",first:"Anna",age:29,kids:["Mia"]},
+ {id:5,last:"Kowalski",first:"Marta",age:47,kids:["Jan","Zofia"]},
+ {id:6,last:"Müller",first:"Katrin",age:36,kids:["Lina"]}
+];
+function nrm(s){return s.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/ı/g,"i").replace(/ß/g,"ss").toLowerCase()}
+function words(s){return nrm(s).split(/[\s,\-]+/).filter(Boolean)}
+function matchP(p,tk){var ws=words(p.last+" "+p.first+" "+p.kids.join(" "));return tk.every(function(q){return ws.some(function(w){return w.indexOf(q)===0})})}
+function hl(text,tk){return text.replace(/[^\s,\-]+/g,function(w){var n=nrm(w);for(var i=0;i<tk.length;i++){if(n.indexOf(tk[i])===0)return "<mark>"+w.slice(0,tk[i].length)+"</mark>"+w.slice(tk[i].length)}return w})}
+function note(key){var li=document.createElement("li");li.className="msn";li.textContent=t(key);msr.appendChild(li)}
+function renderResults(){
+  msr.innerHTML="";
+  var raw=msq.value.trim();
+  if(raw.length<2){note("ms.min");return}
+  var tk=nrm(raw).split(/\s+/).filter(Boolean);
+  var res=PAT.filter(function(p){return matchP(p,tk)});
+  if(!res.length){note("ms.none");return}
+  res.forEach(function(p){
+    var li=document.createElement("li"),b=document.createElement("button");
+    b.type="button";b.setAttribute("data-id",p.id);
+    b.innerHTML='<span class="nm">'+hl(p.last+", "+p.first,tk)+'</span> <span class="ag">'+p.age+t("ms.ageu")+'</span><small>'+t("ms.kids")+": "+hl(p.kids.join(", "),tk)+(p.demo?"":" · "+t("ms.tag"))+"</small>";
+    li.appendChild(b);msr.appendChild(li);
+  });
+}
+function openSearch(keep){
+  clearTimers();run++;
+  confirmBox.hidden=true;chart.hidden=true;empty.hidden=false;stage.setAttribute("data-s","idle");setCapr("capr.ready");
+  go.disabled=false;openSet={};setMode("click");
+  flow="manual";renderSteps(0,0);
+  if(!keep)setStatus("s.man");
+  msearch.hidden=false;msq.value="";renderResults();msq.focus();
+}
+msq.addEventListener("input",renderResults);
+msq.addEventListener("keydown",function(e){
+  var bs=msr.querySelectorAll("button");
+  if(e.key==="Enter"){e.preventDefault();if(bs.length===1)bs[0].click();else if(bs.length)bs[0].focus()}
+  else if(e.key==="ArrowDown"&&bs.length){e.preventDefault();bs[0].focus()}
+});
+msr.addEventListener("keydown",function(e){
+  var bs=[].slice.call(msr.querySelectorAll("button")),i=bs.indexOf(document.activeElement);
+  if(e.key==="ArrowDown"&&i<bs.length-1){e.preventDefault();bs[i+1].focus()}
+  else if(e.key==="ArrowUp"){e.preventDefault();if(i>0)bs[i-1].focus();else msq.focus()}
+});
+msr.addEventListener("click",function(e){
+  var b=e.target.closest&&e.target.closest("button[data-id]");
+  if(!b)return;
+  var p=PAT[+b.getAttribute("data-id")];
+  if(p.demo)confirmId();else setStatus("s.nodata");
+});
+$("#msBtn").addEventListener("click",function(){openSearch(false)});
+$("#msCancel").addEventListener("click",idle);
 applyLang();idle();
 })();
 </script>
