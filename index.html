@@ -422,12 +422,12 @@ ol.trl{list-style:none;margin:0;padding:0}
 .wrd.bad .wri{background:var(--bad)}
 .wra{border:1px solid var(--bad);background:var(--card);color:var(--bad);border-radius:.4rem;padding:.25rem .5rem;margin:.2rem 0;font-weight:600}
 .wrk{border:1px solid var(--accent);background:var(--card);border-radius:.4rem;padding:.25rem .5rem;margin:.2rem 0}
-#panic{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;gap:1rem;align-items:center;justify-content:center;flex-wrap:wrap;padding:.55rem 1rem;background:var(--bad);color:#fff;font-weight:700;font-size:.95rem;box-shadow:0 2px 12px rgba(0,0,0,.4)}
+#panic{position:fixed;top:0;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 2rem);border-radius:0 0 .7rem .7rem;z-index:200;display:flex;gap:.8rem;align-items:center;justify-content:center;flex-wrap:wrap;padding:.3rem .9rem;background:var(--bad);color:#fff;font-weight:700;font-size:.82rem;box-shadow:0 2px 12px rgba(0,0,0,.4)}
 #panic[hidden]{display:none}
 #panic.blink{animation:pnb 1s ease-in-out 1}
-#panic .btn{background:#fff;color:#8a1c12;border-color:#fff;font-weight:700}
+#panic .btn{padding:.15rem .7rem;font-size:.78rem;background:#fff;color:#8a1c12;border-color:#fff;font-weight:700}
 @keyframes pnb{0%,100%{opacity:1}50%{opacity:.12}}
-body.pn{padding-top:3rem}
+body.pn{padding-top:2.4rem}
 @media (prefers-reduced-motion:reduce){#panic.blink{animation:none}}
 </style>
 
