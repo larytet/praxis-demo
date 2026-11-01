@@ -313,6 +313,8 @@ ol.trl{list-style:none;margin:0;padding:0}
 .bls{list-style:none;display:flex;gap:.4rem;flex-wrap:wrap;padding:0;margin:.3rem 0}
 .bls li{border:1px solid var(--line);border-radius:999px;padding:.2rem .65rem;font-size:.78rem;color:var(--muted)}
 .bls li.done{border-color:var(--ok);color:var(--ok)}
+#e0wait{min-height:14rem}
+#t0seg{margin-top:.2rem}
 </style>
 
 </head>
@@ -376,7 +378,12 @@ ol.trl{list-style:none;margin:0;padding:0}
     <section class="panel p-doc" aria-labelledby="h-arzt">
       <h2 id="h-arzt" data-i18n="doc.h"></h2>
       <p class="sub" data-i18n="doc.sub"></p>
-      <div class="empty" id="empty"><div><b data-i18n="empty.b"></b><span data-i18n="empty.t"></span></div></div>
+      <div class="empty0" id="empty">
+        <div class="nxrow"><b id="e0name"></b><span class="eyenote" id="e0sub"></span></div>
+        <div class="seg" id="t0seg"><button type="button" data-t0="wait" data-gz aria-pressed="true"></button><button type="button" data-t0="between" data-gz aria-pressed="false"></button><button type="button" data-t0="bill" data-gz aria-pressed="false"></button></div>
+        <div id="e0wait" class="empty"><div><b data-i18n="empty.b"></b><span data-i18n="empty.t"></span></div></div>
+        <div id="btw0" hidden></div><div id="blw0" class="blw" hidden></div>
+      </div>
       <div class="chart" id="chart" hidden>
         <div class="pt">
           <div>
@@ -743,7 +750,7 @@ function applyLang(){
   modeHint.textContent=t("hint."+mode);$("#gzlab").textContent=t("gz.dwell");
   var it=$("#items");it.innerHTML="";
   for(var i=1;i<=8;i++){var d=document.createElement("div");d.className="it";d.innerHTML="<b>"+t("l"+i+".t")+"</b><p>"+t("l"+i+".p")+"</p>";it.appendChild(d)}
-  if(!chart.hidden){renderBoard();nxRender()}spRender();if(typeof LT!=="undefined")ltRender();
+  if(!chart.hidden){renderBoard();nxRender()}spRender();if(typeof LT!=="undefined")ltRender();if(typeof btRender==="function")btRender();
 }
 
 /* --- Check-in --- */
@@ -1155,7 +1162,7 @@ function nxRender(){
   document.querySelectorAll("#nxIns button").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-v")===NX.ins?"true":"false")});
 }
 function nxReset(){
-  NX.appr={};NX.prev={};NX.tasks=[{k:"k1",due:0,done:false}];NX.day=0;NX.demo=false;NX.sel=1;NX.pane="doc";NX.pushed={};NX.rc={};SP.log=[];SP.epa.up=false;BTO={};BL.sent=false;BL.chk={};setT1("clues");syncRight();setStage("1");
+  NX.appr={};NX.prev={};NX.tasks=[{k:"k1",due:0,done:false}];NX.day=0;NX.demo=false;NX.sel=1;NX.pane="doc";NX.pushed={};NX.rc={};SP.log=[];SP.epa.up=false;BTO={};BL.sent=false;BL.chk={};setT1("clues");setT0("wait");btRender();syncRight();setStage("1");
   $("#nxDx").value="";$("#nxSpec").value="";
 }
 function setStage(st){chart.setAttribute("data-st",st);document.querySelectorAll(".stagebtn").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-s")===st?"true":"false")})}
@@ -1216,12 +1223,14 @@ function btRender(){
     var open=!!BTO[e.i];
     h+='<div class="bte'+(open?" open":"")+'" data-i="'+e.i+'"><span class="d">'+fillTpl(t("bt.ago"),{n:e.d})+'</span><span class="bs">'+btSrc(e)+'</span><span class="tx" lang="de">'+nesc(e.tx)+'</span><span class="mk">'+(e.nw?'<span class="pill info">'+t("bt.new")+'</span>':"")+(e.fl?'<span class="pill warn">'+t("chg.flag")+'</span>':"")+'</span>'+(open?'<span class="btd" lang="de">'+nesc(e.src)+'</span>':"")+'</div>';
   });
-  $("#btw").innerHTML=h+'<p class="eyenote">'+t("bt.de")+'</p>';
+  var bh=h+'<p class="eyenote">'+t("bt.de")+'</p>';$("#btw").innerHTML=bh;$("#btw0").innerHTML=bh;
+  var s0=$("#t0seg").querySelectorAll("button");s0[0].textContent=t("empty.b");s0[1].textContent=t("bt.tab")+" ("+list.length+")";s0[2].textContent=t("nx.bill");
+  $("#e0name").textContent="Hoffmann-Khalil, Sara";$("#e0sub").textContent=SCH[0][0]+" \u00b7 "+t(SCH[0][2])+" \u00b7 "+SP.book;
   blRender();
 }
 function blRender(){
   var g=NX.ins==="gkv",items=g?BLG:BLP;
-  var h='<div class="seg" id="blIns"><button type="button" data-bl="ins" data-v="gkv" aria-pressed="'+(g?"true":"false")+'">'+t("nx.gkv")+'</button><button type="button" data-bl="ins" data-v="pkv" aria-pressed="'+(g?"false":"true")+'">'+t("nx.pkv")+'</button></div><div class="blgrid"><div>';
+  var h='<div class="seg"><button type="button" data-bl="ins" data-v="gkv" aria-pressed="'+(g?"true":"false")+'">'+t("nx.gkv")+'</button><button type="button" data-bl="ins" data-v="pkv" aria-pressed="'+(g?"false":"true")+'">'+t("nx.pkv")+'</button></div><div class="blgrid"><div>';
   h+='<h4>'+t("bl.h1")+'</h4>';
   items.forEach(function(r){h+='<label class="bli"><input type="checkbox" data-bl="chk" data-k="'+r[0]+'"'+(BL.chk[r[0]]===false?"":" checked")+'><span class="cd" lang="de">'+r[0]+'</span><span lang="de">'+r[1]+'</span></label>'});
   h+='<p class="eyenote">'+t("bl.note")+'</p><h4>'+t("bl.h2")+'</h4><ol class="bls"><li class="done">'+t("bl.g.s1")+'</li><li'+(BL.sent?' class="done"':'')+'>'+t(g?"bl.g.s2":"bl.p.s2")+'</li><li'+(BL.sent&&!g?' class="done"':'')+'>'+t(g?"bl.g.s3":"bl.p.s3")+'</li></ol></div><div><h4>'+t("bl.int")+'</h4>';
@@ -1230,18 +1239,23 @@ function blRender(){
     h+='<ul class="spl"><li>'+t("bl.p.i1")+'</li><li>'+t("bl.p.i2")+'</li></ul><div class="seg">'+BLPV.map(function(v){return '<button type="button" data-bl="prov" data-v="'+v+'" aria-pressed="'+(BL.sel===v?"true":"false")+'">'+v+'</button>'}).join("")+'</div>';
   }
   h+='<div class="btns" style="margin-top:.6rem">'+(BL.sent?'<span class="pill ok">'+t(g?"bl.sent.g":"bl.sent.p")+'</span>':'<button class="btn pri" type="button" data-bl="send">'+t(g?"bl.send.g":"bl.send.p")+'</button>')+'</div></div></div>';
-  $("#blw").innerHTML=h;
+  $("#blw").innerHTML=h;$("#blw0").innerHTML=h;
 }
 $("#t1seg").addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("button[data-t]");if(b)setT1(b.getAttribute("data-t"))});
-$("#btw").addEventListener("click",function(e){var r=e.target.closest&&e.target.closest(".bte");if(r){var i=r.getAttribute("data-i");BTO[i]=!BTO[i];btRender()}});
-$("#blw").addEventListener("click",function(e){
+function btClick(e){var r=e.target.closest&&e.target.closest(".bte");if(r){var i=r.getAttribute("data-i");BTO[i]=!BTO[i];btRender()}}
+$("#btw").addEventListener("click",btClick);$("#btw0").addEventListener("click",btClick);
+function blClick(e){
   var b=e.target.closest&&e.target.closest("button[data-bl]");if(!b)return;
   var a=b.getAttribute("data-bl");
   if(a==="ins"){NX.ins=b.getAttribute("data-v");BL.sent=false;nxRender()}
   else if(a==="prov"){BL.sel=b.getAttribute("data-v");blRender()}
   else if(a==="send"){BL.sent=true;SP.log.unshift({day:NX.day,k:"bl.l",p:NX.ins==="gkv"?"KV":BL.sel});nxRender()}
-});
-$("#blw").addEventListener("change",function(e){var c=e.target;if(c.getAttribute&&c.getAttribute("data-bl")==="chk"){BL.chk[c.getAttribute("data-k")]=c.checked}});
+}
+$("#blw").addEventListener("click",blClick);$("#blw0").addEventListener("click",blClick);
+function blChange(e){var c=e.target;if(c.getAttribute&&c.getAttribute("data-bl")==="chk"){BL.chk[c.getAttribute("data-k")]=c.checked}}
+$("#blw").addEventListener("change",blChange);$("#blw0").addEventListener("change",blChange);
+function setT0(k){$("#e0wait").hidden=k!=="wait";$("#btw0").hidden=k!=="between";$("#blw0").hidden=k!=="bill";document.querySelectorAll("#t0seg button").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-t0")===k?"true":"false")})}
+$("#t0seg").addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("button[data-t0]");if(b)setT0(b.getAttribute("data-t0"))});
 var LT={i:0,ne:0,nd:0,tk:0,hold:0,hist:[],playing:false,sub:true,iv:null,done:false};
 var LTS=[
  ["d","How have you been since your last visit?","Wie ging es Ihnen seit Ihrem letzten Besuch?"],
