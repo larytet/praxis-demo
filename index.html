@@ -1452,6 +1452,13 @@ function hmEvt(e){
 ["#hmw","#hmw0"].forEach(function(id){$(id).addEventListener("click",hmEvt);$(id).addEventListener("change",hmEvt)});
 var WV={i:-1,live:true,still:"",iv:null};
 var WVV={"0":[118,76,98,3.4,3.4,14],"1":[128,82,97,3.1,3.2,15],"3":[112,70,99,3.5,3.5,16],"-1":[146,92,96,4.6,4.5,20]};
+var WVD={"0":4,"1":-6,"3":-16,"-1":10};
+var WVS='<rect width="120" height="90" fill="#ebe6dc"/><rect y="56" width="120" height="3" fill="#d7d0c3"/><rect y="68" width="120" height="22" fill="#a9b2b8"/>'
+ +'<rect x="84" y="10" width="30" height="32" fill="#d4ebf6" stroke="#fff" stroke-width="2"/><path d="M99 10V42M84 26H114" stroke="#fff" stroke-width="1.5"/>'
+ +'<rect x="3" y="16" width="24" height="54" fill="#8b6b4a" stroke="#6e5338"/><path d="M15 16V70" stroke="#6e5338"/><circle cx="12.5" cy="44" r="1.2" fill="#d9c28f"/><circle cx="17.5" cy="44" r="1.2" fill="#d9c28f"/><rect x="5" y="18" width="8" height="3" fill="#c25b4a"/><rect x="17" y="18" width="8" height="3" fill="#3b6fa8"/>'
+ +'<rect x="30" y="60" width="9" height="10" rx="1" fill="#b0603f"/><g fill="#3f8f4f"><ellipse cx="34.5" cy="48" rx="3" ry="11"/><ellipse cx="30" cy="51" rx="3" ry="9" transform="rotate(-28 30 51)"/><ellipse cx="39" cy="51" rx="3" ry="9" transform="rotate(28 39 51)"/></g>'
+ +'<rect x="105" y="62" width="8" height="8" rx="1" fill="#b0603f"/><g fill="#4aa05a"><ellipse cx="109" cy="55" rx="2.5" ry="8"/><ellipse cx="105" cy="57" rx="2.5" ry="6" transform="rotate(-30 105 57)"/><ellipse cx="113" cy="57" rx="2.5" ry="6" transform="rotate(30 113 57)"/></g>'
+ +'<ellipse cx="92" cy="80" rx="20" ry="6" fill="#e9a23b" opacity=".65"/><rect x="82" y="72" width="7" height="7" fill="#d9534f"/><rect x="90" y="72" width="7" height="7" fill="#3b7fd0"/><rect x="86" y="65" width="7" height="7" fill="#4aa05a"/><circle cx="102" cy="77" r="3.5" fill="#f2c94c"/>';
 var WVP={"0":{sk:"#f1c9a5",hr:"#2b1b17",sh:"#2a7f93",st:"long"},"1":{sk:"#e8b995",hr:"#9a9aa0",sh:"#3b5ea8",st:"short"},"3":{sk:"#f6d3b8",hr:"#d9b45f",sh:"#a24b6a",st:"long",kid:1},"-1":{sk:"#e9b08e",hr:"#3a2a22",sh:"#6b6f77",st:"short"}};
 function wvFig(P,tr){
   var hair=P.st==="long"?"M45 40 Q44 20 60 20 Q76 20 75 40 L76 62 Q70 56 70 44 Q60 36 50 44 Q50 56 44 62 Z":"M46 36 Q46 21 60 21 Q74 21 74 36 Q68 28 60 28 Q52 28 46 36 Z";
@@ -1461,7 +1468,7 @@ function wvRender(){
   var w=WRS[WV.i];if(!w)return;
   var P=WVP[String(w[0])]||WVP["-1"],nm=w[0]>=0?schP(SCH[DI+w[0]]).last+", "+schP(SCH[DI+w[0]]).first:t("wr.unk");
   $("#wvt1").textContent=t("wv.cam")+" · "+nm;
-  var svg='<svg viewBox="0 0 120 90" class="'+(WV.live?"wv-live":"")+'" preserveAspectRatio="xMidYMid slice"><rect width="120" height="90" fill="#cfd6dc"/><rect y="70" width="120" height="20" fill="#aab3ba"/><rect x="6" y="14" width="26" height="56" fill="#b8c1c8" stroke="#98a3ab"/>'+wvFig(P,"")+(P.kid?wvFig({sk:"#f6d3b8",hr:"#a8782f",sh:"#e9a23b",st:"short"},"translate(82 38) scale(.5)"):"")+(wrBad(w)?'<rect width="120" height="90" fill="rgba(255,60,30,.2)"/>':"")+'</svg>';
+  var svg='<svg viewBox="0 0 120 90" class="'+(WV.live?"wv-live":"")+'" preserveAspectRatio="xMidYMid slice">'+WVS+wvFig(P,"translate("+(WVD[String(w[0])]||0)+" 0)")+(P.kid?wvFig({sk:"#f6d3b8",hr:"#a8782f",sh:"#e9a23b",st:"short"},"translate(70 42) scale(.45)"):"")+(wrBad(w)?'<rect width="120" height="90" fill="rgba(255,60,30,.2)"/>':"")+'</svg>';
   $("#wvs").innerHTML=svg+'<span class="wvo tl">'+(WV.live?'<i class="wvd"></i>LIVE':t("wv.stillb"))+'</span><span class="wvo tr" id="wvts">'+(WV.live?nowTs():WV.still)+'</span><span class="wvo bl">'+nm+'</span>'+"";
   var V=WVV[String(w[0])]||WVV["-1"],cells=[["wv.t",String(w[2]).replace(".",L_DEC())+" °C",w[2]>=38],["wv.p",w[3]+" /min",w[3]>=90],["wv.bp",V[0]+"/"+V[1]+" mmHg",V[0]>=140||V[1]>=90],["wv.o",V[2]+" %",V[2]<95],["wv.pu",String(V[3].toFixed(1)).replace(".",L_DEC())+" / "+String(V[4].toFixed(1)).replace(".",L_DEC())+" mm",Math.abs(V[3]-V[4])>1||Math.min(V[3],V[4])<2||Math.max(V[3],V[4])>6],["wv.rr",V[5]+" /min",V[5]>=20]];
   $("#wvv").innerHTML=cells.map(function(c){return '<div class="wvc'+(c[2]?" bad":"")+'"><small>'+t(c[0])+'</small><b>'+c[1]+'</b></div>'}).join("");
