@@ -424,6 +424,7 @@ ol.trl{list-style:none;margin:0;padding:0}
 .wrk{border:1px solid var(--accent);background:var(--card);border-radius:.4rem;padding:.25rem .5rem;margin:.2rem 0}
 #panic{position:fixed;top:0;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 2rem);border-radius:0 0 .7rem .7rem;z-index:200;display:flex;gap:.8rem;align-items:center;justify-content:center;flex-wrap:wrap;padding:.3rem .9rem;background:var(--bad);color:#fff;font-weight:700;font-size:.82rem;box-shadow:0 2px 12px rgba(0,0,0,.4)}
 #panic[hidden]{display:none}
+#panic{cursor:pointer}
 #panic.blink{animation:pnb 1s ease-in-out 1}
 #panic .btn{padding:.15rem .7rem;font-size:.78rem;background:#fff;color:#8a1c12;border-color:#fff;font-weight:700}
 @keyframes pnb{0%,100%{opacity:1}50%{opacity:.12}}
@@ -434,7 +435,7 @@ body.pn{padding-top:2.4rem}
 </head>
 <body>
 <div class="wrap" id="wrap">
-<div id="panic" role="alert" hidden><span id="pnMsg"></span><button type="button" class="btn" id="pnAck"></button></div>
+<div id="panic" role="alert" tabindex="0" hidden><span id="pnMsg"></span><button type="button" class="btn" id="pnAck"></button></div>
   <header class="top">
     <div>
       <h1 data-i18n="h1"></h1>
@@ -1436,7 +1437,9 @@ function pnFire(){
   aud("acc","sys","au.e.pn",{});pnRender();
 }
 $("#panicBtn").addEventListener("click",pnFire);
-$("#pnAck").addEventListener("click",function(){PN.on=false;aud("acc","doc","au.e.pn2",{});pnRender()});
+function pnAck(){if(!PN.on)return;PN.on=false;aud("acc","doc","au.e.pn2",{});pnRender()}
+$("#panic").addEventListener("click",pnAck);
+$("#panic").addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();pnAck()}});
 setTimeout(pnFire,6000);
 var IB={f:"all",done:{}};
 var IBD=[
