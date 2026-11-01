@@ -276,6 +276,11 @@ ol.trl{list-style:none;margin:0;padding:0}
 .lawd{display:none}
 .lawd summary{cursor:pointer;font-size:.75rem;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
 .nxt .btns{display:flex;gap:.4rem;flex-wrap:wrap}
+.side h2{margin:.55rem 0 .2rem}
+.side h2:first-child{margin-top:0}
+.spl{margin:.2rem 0}
+.spl li{padding:.12rem 0}
+.spr{padding:.2rem .2rem}
 </style>
 
 </head>
@@ -1063,6 +1068,7 @@ function spRender(){
   var can=!ob&&!!NX.appr[1]&&!!NX.pushed[1]&&!SP.epa.up;
   $("#epaUp").disabled=!can;$("#epaUp").textContent=t(SP.epa.up?"sp.epa.done":"sp.epa.up");
   $("#epahint").textContent=(!ob&&!SP.epa.up&&!NX.pushed[1])?t("sp.epa.hint"):"";
+  var lgEl=$("#splog");lgEl.hidden=!SP.log.length;lgEl.previousElementSibling.hidden=!SP.log.length;
   $("#splog").innerHTML=SP.log.slice(0,4).map(function(e){return "<li>"+t("nx.day")+" "+e.day+": "+fillTpl(t(e.k),{p:e.p,d:e.d?t(e.d):""})+"</li>"}).join("");
 }
 $("#side").addEventListener("click",function(e){
